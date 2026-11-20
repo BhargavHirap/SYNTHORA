@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Activity, ArrowRight, BarChart3, BrainCircuit, Clock3, Globe2, Layers3, Loader2, Plus, Radar, ShieldCheck, Trash2, Users, X } from "lucide-react";
-import { COUNTRY_PROFILES, type CountryCode, type PopulationInput, type PopulationResult, type ScenarioInput } from "@/lib/population";
+import { COUNTRY_PROFILES, type CountryCode, type PopulationInput, type PopulationResult, type ScenarioInput, type SyntheticAgent } from "@/lib/population";
 import { loadExperiments, saveExperiment, deleteExperiment } from "@/lib/experiment-store";
 import CognitiveLab from "@/components/CognitiveLab";
 import LLMAgentLab from "@/components/LLMAgentLab";
@@ -41,8 +41,14 @@ export default function Home(){
   setBusy(true);setError("");
   try{
    const previous = reuse ? runs.find(r => r.country === country) : undefined;
-   const seed=previous?.cohortId || `cohort-${country}-${Date.now()}`;
-   const payload:PopulationInput={product,description,audience,country,language,sampleSize,seed,scenarios,...(previous?.agents?.length?{previousAgents:previous.agents}:{})};
+   let remote: {agent_id:string;memory:SyntheticAgent["memory"]}[] = [];
+   const cloudProject = typeof window !== "undefined" ? localStorage.getItem("synthora-active-project") : null;
+   if (reuse && cloudProject) { try { const mr=await fetch("/api/cloud/agent-memory?project_id="+encodeURIComponent(cloudProject)); if(mr.ok){const mj=await mr.json();remote=Array.isArray(mj.memories)?mj.memories.filter((x:{agent_id?:string})=>String(x.agent_id||"").startsWith("cohort-"+country+"-")):[];} } catch { /* Cloud memory is optional; keep local cohort memory available. */ } }
+   const remoteSeed=remote[0]?.agent_id.split("-agent-")[0];
+   const seed=previous?.cohortId || remoteSeed || `cohort-${country}-${Date.now()}`;
+   const memoryMap=new Map(remote.map(x=>[x.agent_id,x.memory]));
+   const remembered=previous?.agents?.map(a=>({...a,memory:memoryMap.get(a.id)||a.memory})) || remote.map(x=>({id:x.agent_id,memory:x.memory} as SyntheticAgent));
+   const payload:PopulationInput={product,description,audience,country,language,sampleSize,seed,scenarios,...(remembered.length?{previousAgents:remembered}:{})};
    const response=await fetch("/api/population",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    const data=await response.json();if(!response.ok)throw new Error(data.error||"Population run failed.");
    await saveExperiment(data);setResult(data);setTab("overview");setRuns(await loadExperiments());
