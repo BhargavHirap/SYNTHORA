@@ -39,3 +39,16 @@ Optional synthesis flow: browser sends the selected observations and research qu
 - Country-level aggregates must not be used to infer individual-level preferences (ecological fallacy) or causality.
 - Latest non-empty observations can have different reference years; the UI displays years alongside values.
 - AI summaries are interpretation aids, not validated statistical models or representative consumer research.
+
+## v0.6 benchmark and validation flow
+
+Researcher selects a SYNTHORA prediction and records a comparable published outcome with market, outcome definition, observation year, sample size, source URL and comparability notes. The browser validates fields and stores up to 500 benchmark pairs in localStorage. CSV/JSON import is validated before records enter the registry; CSV/JSON export supports backup and review.
+
+For the selected benchmark set the client calculates:
+- MAE and RMSE in percentage points.
+- Signed bias (positive means model overestimation).
+- Share of pairs within ±5 and ±10 percentage points.
+- A percentile bootstrap interval for MAE when at least three pairs exist.
+- Linear slope, intercept and correlation as descriptive diagnostics.
+
+These metrics do not establish validity if the compared measures, sampling frames, questions, segments or field periods are not comparable. The bootstrap resamples only the entered pairs and must not be described as a population confidence interval. Keep a separate holdout set for evaluation. No real-world ground truth is bundled or fabricated.
