@@ -186,7 +186,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [x] Cross-country what-if simulation and Monte Carlo model-sensitivity intervals
 - [x] Seeded experiment history and JSON export
 - [ ] Batch execution workers, run budgets and audit logs
-- [ ] Exportable research reports
+- [x] Exportable research execution records (browser-local JSON)\n- [x] Human-approved external source intake and execution history\n- [ ] Durable background workers, team-shared execution logs and auditable cloud storage
 
 ## License
 
@@ -206,3 +206,15 @@ Proprietary project. All rights reserved.
 Set Vercel environment variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, and SUPABASE_SERVICE_ROLE_KEY (server-only). Review and apply supabase/schema.sql to the intended Supabase project, then configure Supabase Auth email confirmation and redirect URLs. The repository does not activate a Supabase project or apply the schema automatically. Never expose the service-role key in browser code.
 
 The first API release is synchronous and capped; durable background queues, billing, enterprise SSO, team invitation workflows and audited storage upload UX remain future hardening tasks.
+
+
+### v1.7 — Autonomous Research Execution & Tool Intelligence
+
+- Research question discovery through the optional Tavily Search API (TAVILY_API_KEY, server-side only).
+- Human approval is required before retrieving selected public source URLs; users may also provide URLs manually without a search key.
+- Bounded source intake: up to five URLs per run, HTTP(S) only, private/local host checks, redirects refused, content-type checks, per-request timeout and response-size limits.
+- Source snippets are discovery leads, not verified evidence. Retrieved page text is untrusted and must be checked for publisher, publication date, methodology and claim provenance.
+- Browser-local execution history (latest 20 runs), source inspection and JSON export.
+- No automatic consequential actions, no participant contact, no experiment claims of real-world validation and no cross-device sync.
+
+To enable search, set TAVILY_API_KEY as a server-side Vercel environment variable. Without it, paste up to five public URLs into Manual source URLs and approve collection. Do not use private, authenticated or confidential URLs. The collector is a lightweight HTML/text intake tool; PDF text extraction is not included. It does not establish factual accuracy or publisher authority.
