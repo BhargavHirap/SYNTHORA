@@ -21,7 +21,7 @@ export default function ResearchPlatform({runs=[]}:{runs?:PopulationResult[]}) {
  const stats=useMemo(()=>({runs:runs.length,markets:new Set(runs.map(x=>x.country)).size,agents:runs.reduce((s,x)=>s+x.population.generated,0),mean:runs.length?runs.reduce((s,x)=>s+(x.scenarios[0]?.intentIndex||0),0)/runs.length:0}),[runs]);
  function exportEnterpriseCsv(){
   const rows=[["run_id","created_at","country","country_name","agents","scenario","price","intent_index","interaction_lift","top_objection"]];
-  for(const r of runs)for(const sc of r.scenarios)rows.push([r.id,r.createdAt,r.country,r.countryName,r.population.generated,sc.label,String(sc.price),String(sc.intentIndex),String(sc.interactionLift),sc.objections[0]?.label||""]);
+  for(const r of runs)for(const sc of r.scenarios)rows.push([String(r.id),String(r.createdAt),String(r.country),String(r.countryName),String(r.population.generated),String(sc.label),String(sc.price),String(sc.intentIndex),String(sc.interactionLift),String(sc.objections[0]?.label||"")]);
   const csv=rows.map(row=>row.map(v=>{const value=String(v??"");return /[",\r\n]/.test(value)?'"'+value.replace(/"/g,'""')+'"':value;}).join(",")).join("\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   const link=document.createElement("a");link.href=url;link.download="synthora-enterprise-experiments.csv";link.click();URL.revokeObjectURL(url);
