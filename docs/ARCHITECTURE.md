@@ -24,3 +24,18 @@ Browser (Next.js client) → Next.js route handler → deterministic scenario en
 ## Important design rule
 
 Do not turn an LLM's fluent answer into a probability. Statistical estimates must come from explicit, evaluated methods and suitable evidence.
+
+## v0.5 evidence flow
+
+Browser research workspace → `/api/research-data` → World Bank Indicators API v2 (World Development Indicators, source 2) → normalized observations with market, indicator, year and value → browser evidence table.
+
+Optional synthesis flow: browser sends the selected observations and research question → `/api/research-synthesis` validates the observation set → server-side Vercel AI Gateway → structured findings with evidence IDs → response validator removes references not present in the input → browser report and local JSON archive.
+
+### Evidence and safety rules
+
+- Only allowlisted World Bank indicators and market codes are queried; the route does not fetch arbitrary user-supplied URLs.
+- The server does not accept or expose user API keys; AI Gateway credentials remain server-side.
+- Every synthesized evidence reference must match an observation ID supplied to the model.
+- Country-level aggregates must not be used to infer individual-level preferences (ecological fallacy) or causality.
+- Latest non-empty observations can have different reference years; the UI displays years alongside values.
+- AI summaries are interpretation aids, not validated statistical models or representative consumer research.

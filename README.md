@@ -6,6 +6,17 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v0.5 — Research Intelligence Layer
+
+- Fetch live public macro indicators from the World Bank World Development Indicators API for India, United States, United Kingdom, Germany, Japan and Brazil.
+- Compare the latest available non-empty observations for population, GDP per capita, internet use, urban population and unemployment.
+- Preserve indicator codes, observation years, retrieval time and a direct source link; missing observations are omitted rather than fabricated.
+- Generate an optional AI-assisted research brief grounded only in the selected observations, with evidence IDs attached to each finding.
+- Separate descriptive findings from tentative patterns and explicitly list what the aggregate data cannot establish.
+- Export evidence-linked research briefs as JSON and keep the latest 10 reports in browser-local history.
+
+The public data explorer does not require an API key. Evidence synthesis uses the existing server-side `AI_GATEWAY_API_KEY` and can incur model usage charges. The integration reads country-level World Bank data; it does not claim to measure individual preferences, represent sub-populations, or establish causality. Latest available years can differ by indicator and country.
+
 ## v0.4 — LLM Agent Simulation
 
 - Optional LLM-powered synthetic agent generation through Vercel AI Gateway.
@@ -95,7 +106,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [x] Simplified multi-agent network interaction
 - [x] Up to six paired scenario comparisons
 - [x] Browser-persistent experiment archive and agent memory
-- [ ] Official country demographic packs with citations, provenance and versioning
+- [x] Public macro indicator ingestion with source links, observation years and evidence-linked AI research briefs\n- [ ] Official country demographic packs with citations, provenance and versioning
 - [ ] Calibrated trait distributions and validation against real-world holdout studies
 - [ ] Managed database, authentication and cross-device/team workspaces
 - [x] Heuristic multi-round agent conversations and behavioural adaptation

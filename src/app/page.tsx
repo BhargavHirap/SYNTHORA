@@ -6,6 +6,7 @@ import { COUNTRY_PROFILES, type CountryCode, type PopulationInput, type Populati
 import { loadExperiments, saveExperiment, deleteExperiment } from "@/lib/experiment-store";
 import CognitiveLab from "@/components/CognitiveLab";
 import LLMAgentLab from "@/components/LLMAgentLab";
+import ResearchIntelligence from "@/components/ResearchIntelligence";
 
 const countries: {code:CountryCode;name:string}[]=[{code:"IN",name:"India"},{code:"US",name:"United States"},{code:"GB",name:"United Kingdom"},{code:"DE",name:"Germany"},{code:"JP",name:"Japan"},{code:"BR",name:"Brazil"}];
 const currency:Record<CountryCode,string>={IN:"INR",US:"USD",GB:"GBP",DE:"EUR",JP:"JPY",BR:"BRL"};
@@ -86,6 +87,7 @@ export default function Home(){
   <section className="mt-10"><div className="mb-4 flex items-center justify-between"><div><div className="eyebrow">04 / Research archive</div><h2 className="mt-2 text-lg font-semibold">Saved experiments</h2></div><span className="text-[10px] text-slate-500">{storageReady?runs.length:"…"} stored in this browser</span></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{runs.slice(0,6).map(r=><div key={r.id} className="panel rounded-xl p-4"><div className="flex items-start justify-between"><div><div className="text-sm font-medium">{r.countryName} · {fmt(r.population.generated)} agents</div><div className="mt-1 text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleString()}</div></div><button onClick={()=>remove(r.id)} aria-label="Delete saved experiment" className="text-slate-600 hover:text-rose-300"><Trash2 size={14}/></button></div><div className="mt-3 flex items-center justify-between"><span className="text-[11px] text-slate-400">{r.scenarios.length} scenarios</span><button onClick={()=>{setResult(r);setTab("overview");}} className="text-[11px] text-emerald-200">Open run <ArrowRight size={12} className="ml-1 inline"/></button></div></div>)}</div></section>
   <CognitiveLab />
   <LLMAgentLab />
+  <ResearchIntelligence />
   <footer className="mt-12 flex flex-col justify-between gap-3 border-t border-white/[.08] pt-6 text-[10px] text-slate-600 sm:flex-row"><span>© 2026 SYNTHORA · POPULATION INTELLIGENCE ENGINE</span><span>Research prototype · Synthetic scenarios are not real-world evidence</span></footer>
  </div></main>;
 }
