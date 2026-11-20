@@ -6,6 +6,16 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v0.3 — Cognitive Simulation Core
+
+- Generate synthetic agents with individual goals, motivations, decision variables, confidence and memory adaptation.
+- Run multi-round heuristic agent-to-agent discussions and inspect conversation excerpts.
+- Adapt agent opinions through a dynamic, rewiring social network.
+- Explore country-context what-if scenarios across India, US, UK, Germany, Japan and Brazil.
+- Compare support, opposition, undecided groups, consensus signals and polarization.
+- Run Monte Carlo perturbation trials and report 95% model-sensitivity intervals and standard error.
+- Reproduce a run with its seed, archive the latest 20 runs locally and export a complete JSON experiment record.
+
 ## v0.2 — Population Intelligence Engine
 
 - Generate individual synthetic adult agents with reproducible cohort IDs.
@@ -16,6 +26,10 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 - Carry agent exposure history and affinity memory between runs when the cohort is reused.
 - Persist experiments and agent memory in browser IndexedDB; inspect, reopen and delete saved runs.
 - Compare scenario intent indices, segment signals, objections and interaction lift.
+
+## v0.3 cognitive model limitations
+
+The cognitive core is a deterministic, rule-based simulation. Agent dialogue is generated from structured goals and arguments; it is not free-form LLM conversation or evidence of genuine human cognition. Country context values are illustrative hypotheses, not measured national cultural scores. The social graph is a simplified rewiring network. Monte Carlo intervals quantify sensitivity to the model's own perturbations, not statistical confidence intervals for real populations. Runs are stored in local browser storage; no cloud sync or team collaboration is provided.
 
 ## Important data and model limitations
 
@@ -69,7 +83,10 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [ ] Official country demographic packs with citations, provenance and versioning
 - [ ] Calibrated trait distributions and validation against real-world holdout studies
 - [ ] Managed database, authentication and cross-device/team workspaces
-- [ ] Richer multi-round agent conversations and auditable memory updates
+- [x] Heuristic multi-round agent conversations and behavioural adaptation
+- [x] Dynamic network rewiring and group consensus indicators
+- [x] Cross-country what-if simulation and Monte Carlo model-sensitivity intervals
+- [x] Seeded experiment history and JSON export
 - [ ] Batch execution workers, run budgets and audit logs
 - [ ] Exportable research reports
 
