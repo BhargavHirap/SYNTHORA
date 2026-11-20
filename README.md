@@ -6,6 +6,17 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v0.4 — LLM Agent Simulation
+
+- Optional LLM-powered synthetic agent generation through Vercel AI Gateway.
+- Separate country-specific model calls create distinct fictional personas, goals, motivations and reasoning.
+- Multi-round natural-language agent debate with opinion shifts and individual memory summaries.
+- Structured, validated JSON output with country summaries, disagreement points and decision counts.
+- Exportable experiment records and browser-local history (latest 10 LLM runs).
+- Deterministic v0.2/v0.3 engines remain available when no AI Gateway key is configured.
+
+To enable LLM mode, set `AI_GATEWAY_API_KEY` in the Vercel project environment variables and redeploy. Optionally set `SYNTHORA_LLM_MODEL` to a model supported by Vercel AI Gateway. Each selected country makes one model request; usage is billed according to the chosen provider/model. Never expose the key to client-side code.
+
 ## v0.3 — Cognitive Simulation Core
 
 - Generate synthetic agents with individual goals, motivations, decision variables, confidence and memory adaptation.
@@ -26,6 +37,10 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 - Carry agent exposure history and affinity memory between runs when the cohort is reused.
 - Persist experiments and agent memory in browser IndexedDB; inspect, reopen and delete saved runs.
 - Compare scenario intent indices, segment signals, objections and interaction lift.
+
+## v0.4 LLM simulation limitations
+
+LLM-generated agents are fictional model outputs and are not validated representatives of real populations. The supplied seed is context for the model but does not guarantee exact repeatability. Country context is a prompt-level scenario lens, not a measured national psychological profile. LLM decision counts are descriptive counts of generated agents only. The latest 10 LLM experiments are saved in browser local storage, not shared cloud storage. Model requests can incur provider charges.
 
 ## v0.3 cognitive model limitations
 
