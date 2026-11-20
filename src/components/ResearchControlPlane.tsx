@@ -8,13 +8,13 @@ import {
 } from "@/lib/research-control-plane";
 
 const STORAGE = "synthora-v20-research-control-plane";
-type Workspace = { protocol: ResearchProtocol; evidence: EvidenceItem[]; audit: AuditEvent[] };
+type Workspace = { protocol: ResearchProtocol; evidence: EvidenceItem[]; audit: AuditEvent[]; versions: { version: number; savedAt: string; protocol: ResearchProtocol }[] };
 const blankEvidence = (): EvidenceItem => ({
   id: crypto.randomUUID(), title: "", publisher: "", url: "", evidenceClass: "other",
   publishedDate: "", accessDate: new Date().toISOString().slice(0, 10), claim: "",
   supports: "unknown", quality: "unassessed", notes: "",
 });
-const blankWorkspace = (): Workspace => ({ protocol: emptyProtocol(), evidence: [], audit: [] });
+const blankWorkspace = (): Workspace => ({ protocol: emptyProtocol(), evidence: [], audit: [], versions: [] });
 
 function downloadJson(filename: string, data: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
@@ -34,7 +34,7 @@ export default function ResearchControlPlane() {
       const raw = localStorage.getItem(STORAGE);
       if (raw) {
         const parsed = JSON.parse(raw) as Workspace;
-        if (parsed?.protocol?.id && Array.isArray(parsed.evidence) && Array.isArray(parsed.audit)) setWorkspace(parsed);
+        if (parsed?.protocol?.id && Array.isArray(parsed.evidence) && Array.isArray(parsed.audit)) setWorkspace({ ...parsed, versions: Array.isArray(parsed.versions) ? parsed.versions : [] });
         else setWorkspace(blankWorkspace());
       } else setWorkspace(blankWorkspace());
     } catch { setWorkspace(blankWorkspace()); setNotice("Saved workspace could not be read; a fresh local workspace was opened."); }
@@ -90,7 +90,7 @@ export default function ResearchControlPlane() {
         <p className="mt-2 max-w-3xl text-xs leading-6 text-slate-400">A structured workspace connecting research questions, preregistered methods, source provenance, quality gates, decision readiness and reproducibility records. It coordinates the scientific workflow; it does not replace expert review.</p>
       </div>
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => downloadJson("synthora-v2-reproducibility-manifest.json", buildReproducibilityManifest(p, workspace.evidence, assessment))} className="rounded-lg border border-emerald-300/30 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-300/10"><Download size={13} className="mr-1 inline"/> Export manifest</button>
+        <button onClick={() => downloadJson("synthora-v2-reproducibility-manifest.json", { ...buildReproducibilityManifest(p, workspace.evidence, assessment), protocolVersions: workspace.versions })} className="rounded-lg border border-emerald-300/30 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-300/10"><Download size={13} className="mr-1 inline"/> Export manifest</button>
         <button onClick={resetWorkspace} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 hover:border-white/30">New protocol</button>
       </div>
     </div>
@@ -101,7 +101,7 @@ export default function ResearchControlPlane() {
       <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Protocol completeness</div><div className="mt-2 text-3xl font-semibold">{assessment.score}%</div><div className="mt-1 text-[10px] text-emerald-200">{assessment.grade}</div></div>
       <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Evidence ledger</div><div className="mt-2 text-3xl font-semibold">{workspace.evidence.length}</div><div className="mt-1 text-[10px] text-slate-400">{readiness.assessedEvidenceCount} quality-assessed records</div></div>
       <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Counter-evidence</div><div className="mt-2 text-xl font-semibold">{readiness.hasCounterEvidence ? "Present" : "Missing"}</div><div className="mt-1 text-[10px] text-slate-400">{readiness.evidenceBalance}</div></div>
-      <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Research stage</div><div className="mt-2 text-xl font-semibold capitalize">{p.stage.replaceAll("_", " ")}</div><div className="mt-1 text-[10px] text-slate-400">{workspace.audit.length} audit events</div></div>
+      <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Research stage</div><div className="mt-2 text-xl font-semibold capitalize">{p.stage.replaceAll("_", " ")}</div><div className="mt-1 text-[10px] text-slate-400">{workspace.versions.length} saved versions · {workspace.audit.length} audit events</div></div>
     </div>
 
     <div className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
@@ -126,7 +126,7 @@ export default function ResearchControlPlane() {
           <label className="block"><span className="mb-2 block text-[11px] text-slate-400">Ethics review status</span><select value={p.ethicsReview} onChange={e => updateProtocol({ ethicsReview: e.target.value as ResearchProtocol["ethicsReview"] })} className="field"><option value="required">Required / not resolved</option><option value="not_applicable">Not applicable (document rationale separately)</option><option value="in_review">In review</option><option value="approved">Approved by relevant body</option></select></label>
           <label className="block"><span className="mb-2 block text-[11px] text-slate-400">Data sensitivity</span><select value={p.dataSensitivity} onChange={e => updateProtocol({ dataSensitivity: e.target.value as ResearchProtocol["dataSensitivity"] })} className="field"><option value="public">Public / non-personal</option><option value="internal">Internal</option><option value="personal">Personal data</option><option value="sensitive">Sensitive personal data</option></select></label>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2"><button onClick={() => { updateProtocol({ version: p.version + 1 }); record("Protocol version incremented", "Protocol version advanced to v" + (p.version + 1) + "."); }} className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:border-emerald-300/40">Save protocol version v{p.version + 1}</button><span className="self-center text-[10px] text-slate-500">Autosaved locally · last edit {new Date(p.updatedAt).toLocaleString()}</span></div>
+        <div className="mt-3 flex flex-wrap gap-2"><button onClick={() => { const snapshot = { version: p.version, savedAt: new Date().toISOString(), protocol: { ...p } }; setWorkspace(current => current ? ({ ...current, versions: [snapshot, ...current.versions].slice(0, 20), protocol: { ...current.protocol, version: current.protocol.version + 1, updatedAt: new Date().toISOString() }, audit: [createAuditEvent("Protocol version saved", "Immutable browser-local snapshot v" + p.version + " created."), ...current.audit].slice(0, 100) }) : current); }} className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:border-emerald-300/40">Save version v{p.version}</button><span className="self-center text-[10px] text-slate-500">Autosaved locally · last edit {new Date(p.updatedAt).toLocaleString()}</span></div>
       </div>
 
       <div className="space-y-5">
