@@ -8,7 +8,9 @@ export type ResearchSource = {
 export type ResearchHypothesis={id:string;statement:string;rationale:string;sourceIds:string[];confidence:"low"|"moderate";testable:boolean};
 export type AgentReview={agent:string;role:string;assessment:string;challenges:string[];missingEvidence:string[]};
 export type FollowUpExperiment={id:string;title:string;question:string;design:string;markets:string[];successMetric:string;priority:"high"|"medium"|"low";reason:string};
-export type AutonomousResearchReport={id:string;createdAt:string;mode:"ai_multi_agent"|"deterministic_fallback";model:string;product:string;researchQuestion:string;executiveSummary:string;hypotheses:ResearchHypothesis[];agentReviews:AgentReview[];evidenceGaps:string[];contradictions:string[];followUpExperiments:FollowUpExperiment[];decisionGates:string[];limitations:string[];sourceSeed:string};
+export type CollaborationContribution={agent:string;role:string;position:string;keyClaims:string[];challenges:string[];uncertainties:string[];evidenceIds:string[]};
+export type CollaborationReport={rounds:{round:number;title:string;summary:string;participants:string[]}[];contributions:CollaborationContribution[];disagreements:{topic:string;positions:string[];resolution:string;status:"resolved"|"open"}[];evidenceLedger:{claim:string;evidenceIds:string[];status:"supported_by_supplied_source"|"unsupported"|"simulation_only"}[];coordinatorSummary:string};
+export type AutonomousResearchReport={id:string;createdAt:string;mode:"ai_multi_agent"|"deterministic_fallback";model:string;product:string;researchQuestion:string;executiveSummary:string;hypotheses:ResearchHypothesis[];agentReviews:AgentReview[];evidenceGaps:string[];contradictions:string[];followUpExperiments:FollowUpExperiment[];decisionGates:string[];limitations:string[];sourceSeed:string;collaboration?:CollaborationReport};
 const safe=(s:unknown,n=500)=>String(s||"").slice(0,n);
 export function buildResearchFallback(source:ResearchSource):AutonomousResearchReport{
  const markets=source.countries||[],evidence=source.evidence||[],findings=source.findings||[];
