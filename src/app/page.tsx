@@ -32,7 +32,7 @@ export default function Home(){
  async function run(){
   setBusy(true);setError("");
   try{
-   const previous= reuse ? runs[0] : undefined;
+   const previous = reuse ? runs.find(r => r.country === country) : undefined;
    const seed=previous?.cohortId || `cohort-${country}-${Date.now()}`;
    const payload:PopulationInput={product,description,audience,country,language,sampleSize,seed,scenarios,...(previous?.agents?.length?{previousAgents:previous.agents}:{})};
    const response=await fetch("/api/population",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
