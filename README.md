@@ -29,7 +29,7 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 ## v0.3 cognitive model limitations
 
-The cognitive core is a deterministic, rule-based simulation. Agent dialogue is generated from structured goals and arguments; it is not free-form LLM conversation or evidence of genuine human cognition. Country context values are illustrative hypotheses, not measured national cultural scores. The social graph is a simplified rewiring network. Monte Carlo intervals quantify sensitivity to the model's own perturbations, not statistical confidence intervals for real populations. Runs are stored in local browser storage; no cloud sync or team collaboration is provided.
+The cognitive core is a deterministic, rule-based simulation. Agent dialogue is generated from structured goals and arguments; it is not free-form LLM conversation or evidence of genuine human cognition. Repeated runs with the same seed can carry forward the prior saved agent stance, confidence and learned-memory state. Country context values are illustrative hypotheses, not measured national cultural scores. The social graph is a simplified rewiring network. Monte Carlo intervals quantify sensitivity to the model's own perturbations, not statistical confidence intervals for real populations. Runs are stored in local browser storage; no cloud sync or team collaboration is provided.
 
 ## Important data and model limitations
 
