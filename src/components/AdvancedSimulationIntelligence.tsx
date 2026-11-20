@@ -1,0 +1,30 @@
+"use client";
+import {useEffect,useMemo,useState} from "react";
+import {Activity,BrainCircuit,Download,RefreshCw,ShieldAlert,Target} from "lucide-react";
+import type {CognitiveResult} from "@/lib/cognitive-engine";
+import {buildIntelligenceReport} from "@/lib/simulation-intelligence";
+
+const HISTORY_KEY="synthora-cognitive-history-v03";
+export default function AdvancedSimulationIntelligence(){
+ const [runs,setRuns]=useState<CognitiveResult[]>([]);
+ const [selected,setSelected]=useState("");
+ const [error,setError]=useState("");
+ useEffect(()=>{refresh();},[]);
+ function refresh(){try{const raw=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");const valid=Array.isArray(raw)?raw.filter((x):x is CognitiveResult=>Boolean(x?.id&&Array.isArray(x.countries)&&x.seed)):[];setRuns(valid);setSelected(valid[0]?.id||"");setError("");}catch{setError("Could not read the cognitive experiment archive on this device.");}}
+ const run=runs.find(r=>r.id===selected);
+ const report=useMemo(()=>run?buildIntelligenceReport(run):null,[run]);
+ function exportReport(){if(!report)return;const a=document.createElement("a");const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:"application/json"}));a.href=url;a.download="synthora-v1.3-intelligence-"+report.runId+".json";a.click();URL.revokeObjectURL(url);}
+ return <section id="advanced-intelligence" className="mt-12 space-y-5">
+  <div className="flex flex-wrap items-end justify-between gap-3"><div><div className="eyebrow flex items-center gap-2"><BrainCircuit size={13}/> V1.3 / Advanced simulation intelligence</div><h2 className="mt-2 text-2xl font-semibold tracking-tight">Turn simulation output into decision intelligence.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">A deterministic analysis layer that evaluates cross-market robustness, model sensitivity, consensus stability, opinion momentum and network exposure from a saved cognitive experiment.</p></div><button onClick={refresh} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-[11px] text-emerald-200"><RefreshCw size={13}/>Refresh runs</button></div>
+  <div className="panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="eyebrow">Analysis source</div><div className="mt-1 text-xs text-slate-400">Select a saved v0.3 cognitive experiment from this browser.</div></div><div className="flex gap-2"><select className="field mb-0 min-w-[220px]" value={selected} onChange={e=>setSelected(e.target.value)}><option value="">Choose experiment…</option>{runs.map(r=><option key={r.id} value={r.id}>{r.input.product} · {new Date(r.createdAt).toLocaleDateString()} · {r.countries.length} markets</option>)}</select><button onClick={exportReport} disabled={!report} className="flex items-center gap-2 rounded-lg border border-emerald-300/20 px-3 py-2 text-[11px] text-emerald-200 disabled:opacity-30"><Download size={13}/>Export</button></div></div>
+  {error&&<p className="mt-3 text-xs text-rose-300">{error}</p>}
+  {!report?<div className="mt-5 rounded-xl border border-dashed border-white/10 p-8 text-center"><Activity size={25} className="mx-auto text-emerald-300"/><p className="mt-3 text-sm font-medium">No cognitive run selected</p><p className="mt-2 text-xs text-slate-500">Run a simulation in the Cognitive Lab above, then refresh this panel.</p></div>:<>
+   <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[[report.strongestMarket,"Strongest simulated market"],[report.mostUncertainMarket,"Most model-sensitive market"],[report.crossMarketSpread+" pts","Cross-market support spread"],[report.robustSupport+"%","Conservative support floor"]].map(([v,l])=><div key={String(l)} className="rounded-xl border border-white/[.07] bg-black/20 p-4"><div className="text-2xl font-semibold text-emerald-200">{v}</div><div className="mt-1 text-[10px] text-slate-500">{l}</div></div>)}</div>
+   <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-[11px]"><thead className="text-slate-500"><tr>{["Market","Support","MC interval width","Round stability","Momentum","Polarization","Model stability"].map(x=><th key={x} className="border-b border-white/10 px-3 py-3 font-medium">{x}</th>)}</tr></thead><tbody>{report.markets.map(m=><tr key={m.country} className="border-b border-white/[.05]"><td className="px-3 py-3 font-medium">{m.countryName}</td><td className="px-3 py-3 text-emerald-200">{m.support}%</td><td className="px-3 py-3">{m.intervalWidth} pts</td><td className="px-3 py-3">{m.consensusStability}/100</td><td className="px-3 py-3">{m.momentum>0?"+":""}{m.momentum} pts</td><td className="px-3 py-3">{m.polarization}/100</td><td className="px-3 py-3">{m.confidenceBand}</td></tr>)}</tbody></table></div>
+   <div className="mt-5 grid gap-4 lg:grid-cols-2">{report.markets.map(m=><div key={m.country} className="rounded-xl border border-white/[.07] p-4"><div className="flex items-center justify-between"><div className="text-sm font-semibold">{m.countryName}</div><span className="text-[10px] text-slate-500">Network exposure {m.networkExposure}/100</span></div><div className="mt-3 flex items-center gap-2 text-[10px] text-amber-100"><ShieldAlert size={13}/> Research watchlist</div><ul className="mt-2 space-y-1">{m.risks.map(x=><li key={x} className="text-[10px] leading-5 text-slate-400">• {x}</li>)}</ul></div>)}</div>
+   <div className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-300/[.04] p-4"><div className="flex items-center gap-2 text-xs font-semibold text-emerald-100"><Target size={14}/> Decision-support synthesis</div><p className="mt-2 text-xs leading-6 text-slate-300">{report.recommendation}</p></div>
+   <div className="mt-4 rounded-xl border border-amber-300/15 bg-amber-300/[.035] p-4"><div className="text-xs font-semibold text-amber-100">Interpretation guardrails</div><ul className="mt-2 space-y-1">{report.caveats.map(x=><li key={x} className="text-[10px] leading-5 text-amber-100/65">• {x}</li>)}</ul></div>
+  </>}
+  </div>
+ </section>;
+}
