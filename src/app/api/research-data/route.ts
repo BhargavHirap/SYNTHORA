@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   if (!markets.length) return NextResponse.json({ error: "Select at least one supported market." }, { status: 400 });
   const codes = markets.map(x => MARKETS[x].code).join(";");
   const indicators = Object.keys(INDICATORS).join(";");
-  const sourceUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicators}?source=2&format=json&mrnev=5&per_page=300`;
+  const sourceUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicators}?source=2&format=json&mrnev=5&per_page=1000`;
   try {
     const response = await fetch(sourceUrl, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(20000), next: { revalidate: 3600 } });
     if (!response.ok) throw new Error(`World Bank API returned ${response.status}`);
