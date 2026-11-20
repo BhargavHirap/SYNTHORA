@@ -251,3 +251,36 @@ To enable search, set TAVILY_API_KEY as a server-side Vercel environment variabl
 ### Statistical and operational limits
 
 The v1.8 calculations use normal approximations and are not suitable for every small-sample, clustered, stratified, sequential or multiple-testing design. The quality score describes documentation completeness, not scientific validity. SYNTHORA does not recruit, randomize, contact or monitor participants, run interventions, verify supplied data, or grant ethics approval. Researchers remain responsible for study design, consent, privacy, preregistration and appropriate statistical review. Simulation/observed differences are descriptive until populations, measures and collection methods are aligned and independent validation is performed.
+
+## v2.0 — Scientific Intelligence Platform
+
+SYNTHORA v2.0 evolves the project from a set of research dashboards into a coordinated scientific workflow. The existing simulation, research, benchmark, calibration, execution and validation studios remain available; the new Research Control Plane adds a shared protocol and provenance layer above them.
+
+### Research Control Plane
+
+- Structured research protocol: question, hypothesis, population, geography, outcomes, methodology, sampling, inclusion/exclusion criteria, analysis plan and limitations.
+- Versioned protocol records with workflow stages from discovery through review and archive.
+- Critical and recommended quality gates that expose missing design information before a researcher proceeds.
+- Ethics-review and data-sensitivity checks; these are workflow warnings, not ethics approval or legal compliance certification.
+- Evidence ledger for peer-reviewed literature, official statistics, preprints, technical reports and datasets.
+- Explicit evidence direction (supports, challenges, context or unclassified) to encourage counter-evidence rather than one-sided confirmation.
+- Researcher-assessed source quality labels with publisher, URL, date and claim provenance.
+- Decision-readiness summary that separates protocol completeness from strength and balance of evidence.
+- Local audit trail for stage transitions and evidence-ledger changes.
+- Exportable schema synthora.reproducibility-manifest.v2 containing the protocol, evidence inventory, quality assessment and execution metadata placeholders. Missing execution metadata remains null rather than being fabricated.
+- Browser-local persistence; no participant-level or sensitive data should be entered into this workspace.
+
+### Platform architecture direction
+
+1. **Research control plane:** protocol, project context, stage gates, audit events and reproducibility manifests.
+2. **Evidence plane:** source discovery, approved source intake, provenance and evidence-ledger review.
+3. **Simulation plane:** synthetic populations, cognitive agents, network interactions and scenario experiments.
+4. **Validation plane:** experimental design, benchmark datasets, calibration diagnostics and sensitivity analysis.
+5. **Execution plane:** controlled research runs, bounded APIs, model-provider orchestration and exportable records.
+6. **Governance plane:** ethics prompts, data sensitivity, scientific limitations, human review and reproducibility controls.
+
+### v2.0 limitations and release status
+
+The Research Control Plane currently stores its workspace in the browser that created it. It is not yet a shared multi-user workspace and does not sync protocols to Supabase. Source URLs and researcher-entered quality labels are not automatically verified. The platform does not autonomously approve studies, recruit participants, execute interventions or certify model validity. The quality score measures documentation completeness, not scientific truth.
+
+This v2.0 work is committed to the development branch. A successful Vercel build and deployment are still required before it can be described as live. The GitHub Actions workflow is intended to run TypeScript and production-build checks on pushes and pull requests.
