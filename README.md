@@ -6,6 +6,17 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v1.5 — Adaptive Agent Memory & Collective Intelligence
+
+- Persist the latest 30 research council reports and up to 50 compact memory records in browser-local storage.
+- Retrieve up to five relevant prior notes for a new research question using lightweight lexical relevance, recency and explicit user feedback.
+- Feed bounded historical notes into the AI research council as continuity context; the prompt explicitly treats memory as untrusted context, not evidence, and repeated claims do not increase confidence.
+- Surface recurring evidence gaps and hypotheses across archived reports, with counts and a split between AI council and deterministic fallback runs.
+- Let researchers rate reports as useful/not useful; ratings influence later memory retrieval.
+- Provide an explicit clear-memory action and disclose that memory is local to the browser and selected notes are sent to the research endpoint on a new run.
+
+Collective insights are descriptive patterns in one browser's saved reports, not consensus among independent researchers, model training, or empirical validation. The feature does not sync across devices or team accounts. Deterministic fallback mode can display archive-level patterns but does not perform semantic reasoning over historical notes. The AI route still requires authentication, durable rate limiting and usage quotas before an unrestricted public launch; do not configure a paid Gateway key on a publicly callable endpoint without those controls.
+
 ## v1.4 — Autonomous Research Agents
 
 - Five-role research council: Research Director, Skeptic, Evidence Auditor, Behavioural Scientist and Experiment Designer.
@@ -152,6 +163,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [x] Public macro and demographic indicator ingestion with source links, observation years and evidence-linked AI research briefs\n- [ ] Official country demographic packs with citations, provenance and versioning
 - [ ] Calibrated trait distributions and validation against real-world holdout studies
 - [ ] Managed database, authentication and cross-device/team workspaces
+- [x] Browser-local adaptive agent memory, report feedback and collective pattern summaries
 - [x] Heuristic multi-round agent conversations and behavioural adaptation
 - [x] Dynamic network rewiring and group consensus indicators
 - [x] Cross-country what-if simulation and Monte Carlo model-sensitivity intervals
