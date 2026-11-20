@@ -70,10 +70,10 @@ function scoreAgent(agent:SyntheticAgent, scenario:ScenarioInput, input:Populati
 function counts<T extends string>(agents:SyntheticAgent[], get:(a:SyntheticAgent)=>T) { const map=new Map<string,number>(); for(const a of agents){const k=get(a);map.set(k,(map.get(k)||0)+1);} return [...map].map(([label,count])=>({label,count})); }
 export function runPopulationSimulation(input: PopulationInput): PopulationResult {
   const profile=COUNTRY_PROFILES[input.country]; const agents=makeAgents(input,profile);
-  const network=agents.map((_,i)=>[agents[(i+1)%agents.length],agents[(i+7)%agents.length],agents[(i+19)%agents.length],agents[(i+43)%agents.length]].filter(Boolean));
+  const network=agents.map((_,i)=>[(i+1)%agents.length,(i+7)%agents.length,(i+19)%agents.length,(i+43)%agents.length]);
   const scenarios=input.scenarios.slice(0,6).map(s=>{
     const raw=agents.map(a=>scoreAgent(a,s,input));
-    const interacted=raw.map((score,i)=>{const peers=network[i];const peerMean=peers.reduce((sum,p)=>sum+raw[agents.indexOf(p)],0)/Math.max(1,peers.length);return clamp(score+(peerMean-score)*(agents[i].socialInfluence/100)*.16);});
+    const interacted=raw.map((score,i)=>{const peers=network[i];const peerMean=peers.reduce((sum,p)=>sum+raw[p],0)/Math.max(1,peers.length);return clamp(score+(peerMean-score)*(agents[i].socialInfluence/100)*.16);});
     const intentIndex=Math.round(interacted.reduce((a,b)=>a+b,0)/interacted.length);
     const interactionLift=Number((interacted.reduce((sum,v,i)=>sum+v-raw[i],0)/interacted.length).toFixed(1));
     const segments=["Value-led","Trust-led","Novelty-led","Quality-led"].map((name,j)=>{const subset=agents.map((a,i)=>({a,v:interacted[i]})).filter(({a})=>j===0?a.priceSensitivity>=65:j===1?a.trustPropensity>=65:j===2?a.noveltySeeking>=65:a.qualityOrientation>=65);return {name,count:subset.length,intent:Math.round(subset.reduce((x,y)=>x+y.v,0)/Math.max(1,subset.length))};});
