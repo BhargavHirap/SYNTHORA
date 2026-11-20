@@ -14,6 +14,13 @@ const INDICATORS = {
   "IT.NET.USER.ZS": { label: "Individuals using the Internet", unit: "% of population" },
   "SP.URB.TOTL.IN.ZS": { label: "Urban population", unit: "% of population" },
   "SL.UEM.TOTL.ZS": { label: "Unemployment, total", unit: "% of labour force" },
+  "SP.POP.0014.TO.ZS": { label: "Population ages 0–14", unit: "% of total population" },
+  "SP.POP.1564.TO.ZS": { label: "Population ages 15–64", unit: "% of total population" },
+  "SP.POP.65UP.TO.ZS": { label: "Population ages 65+", unit: "% of total population" },
+  "SP.RUR.TOTL.ZS": { label: "Rural population", unit: "% of total population" },
+  "SL.TLF.CACT.ZS": { label: "Labour force participation", unit: "% of population ages 15+" },
+  "IT.CEL.SETS.P2": { label: "Mobile cellular subscriptions", unit: "per 100 people" },
+  "SE.SEC.ENRR": { label: "School enrolment, secondary", unit: "% gross" },
 } as const;
 type IndicatorCode = keyof typeof INDICATORS;
 
@@ -29,7 +36,7 @@ export async function POST(req: NextRequest) {
     // Fetch trusted observations server-side. Never treat browser-supplied values as authoritative evidence.
     const codes = selected.map(x => MARKETS[x].iso3).join(";");
     const indicatorCodes = Object.keys(INDICATORS).join(";");
-    const apiUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicatorCodes}?source=2&format=json&mrnev=5&per_page=300`;
+    const apiUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicatorCodes}?source=2&format=json&mrnev=5&per_page=1000`;
     const upstream = await fetch(apiUrl, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(20000), next: { revalidate: 3600 } });
     if (!upstream.ok) throw new Error(`World Bank API returned ${upstream.status}`);
     const wb = await upstream.json() as [{ lastupdated?: string }, Array<{ countryiso3code?: string; country?: { value?: string }; indicator?: { id?: string; value?: string }; date?: string; value?: number | null; unit?: string }> | null];
@@ -73,7 +80,7 @@ export async function POST(req: NextRequest) {
       executiveSummary: String(parsed.executiveSummary || "").slice(0, 1200), findings, crossMarketPatterns: patterns,
       researchQuestions: Array.isArray(parsed.researchQuestions) ? parsed.researchQuestions.map(x => String(x).slice(0, 300)).slice(0, 8) : [],
       cannotConclude: Array.isArray(parsed.cannotConclude) ? parsed.cannotConclude.map(x => String(x).slice(0, 350)).slice(0, 8) : [],
-      evidence, methodology: ["Analysis is grounded only in server-fetched World Bank observations.", "Country-level aggregates cannot establish individual-level preferences or causality.", "Latest available values may refer to different years.", "LLM synthesis is an interpretation aid, not an independently validated statistical model."],
+      evidence, methodology: ["Analysis is grounded only in server-fetched World Bank observations.", "Dataset pack SYNTHORA-GLOBAL-2026.1 includes demographic age bands, rural share, labour-force participation, mobile subscriptions and secondary enrolment.", "Country-level aggregates cannot establish individual-level preferences or causality.", "Latest available values may refer to different years.", "LLM synthesis is an interpretation aid, not an independently validated statistical model."],
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("SYNTHORA evidence synthesis failed", error instanceof Error ? error.message : "unknown");
