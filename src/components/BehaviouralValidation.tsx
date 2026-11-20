@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity, AlertTriangle, Download, FileUp, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { AlertTriangle, Download, FileUp, Plus, ShieldCheck, Trash2 } from "lucide-react";
 
 type Market = "IN" | "US" | "GB" | "DE" | "JP" | "BR";
 type Benchmark = {
@@ -40,7 +40,7 @@ export default function BehaviouralValidation() {
   const [market,setMarket]=useState<Market>("IN"),[metric,setMetric]=useState(metrics[0]);
   const [predicted,setPredicted]=useState(""),[observed,setObserved]=useState(""),[year,setYear]=useState(String(new Date().getFullYear()-1));
   const [sampleSize,setSampleSize]=useState(""),[sourceName,setSourceName]=useState(""),[sourceUrl,setSourceUrl]=useState(""),[notes,setNotes]=useState("");
-  const [error,setError]=useState(""),[filter,setFilter]=useState("all");
+  const [error,setError]=useState(""),[filter,setFilter]=useState("all"),[metricFilter,setMetricFilter]=useState("all");
   const fileRef=useRef<HTMLInputElement>(null);
   useEffect(()=>{try{const parsed=JSON.parse(localStorage.getItem(key)||"[]");if(Array.isArray(parsed))setRows(parsed);}catch{}},[]);
   function persist(next:Benchmark[]){setRows(next);try{localStorage.setItem(key,JSON.stringify(next));}catch{setError("Browser storage is full. Export your data and remove older records.");}}
@@ -68,7 +68,7 @@ export default function BehaviouralValidation() {
     }catch(e){setError(e instanceof Error?e.message:"Could not import this file.");}
     if(fileRef.current)fileRef.current.value="";
   }
-  const visible=useMemo(()=>rows.filter(r=>filter==="all"||r.market===filter),[rows,filter]);
+  const visible=useMemo(()=>rows.filter(r=>(filter==="all"||r.market===filter)&&(metricFilter==="all"||r.metric===metricFilter)),[rows,filter,metricFilter]);
   const groups=useMemo(()=>{const map=new Map<string,Benchmark[]>();for(const r of visible){const k=r.metric;map.set(k,[...(map.get(k)||[]),r]);}return [...map.entries()];},[visible]);
   const summary=useMemo(()=>{const n=visible.length;if(!n)return null;const errors=visible.map(r=>r.predicted-r.observed),abs=errors.map(Math.abs),mae=abs.reduce((a,b)=>a+b,0)/n,rmse=Math.sqrt(errors.reduce((a,b)=>a+b*b,0)/n),bias=errors.reduce((a,b)=>a+b,0)/n;return{n,mae,rmse,bias,within5:abs.filter(x=>x<=5).length/n*100,within10:abs.filter(x=>x<=10).length/n*100,interval:bootstrapMae(visible),reg:visible.length>=3?regression(visible):null};},[visible]);
   function exportJson(){const blob=new Blob([JSON.stringify({schema:"synthora-benchmark-v0.6",exportedAt:new Date().toISOString(),benchmarks:rows},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="synthora-validation-benchmarks.json";a.click();URL.revokeObjectURL(url);}
@@ -76,7 +76,7 @@ export default function BehaviouralValidation() {
   return <section id="behavioural-validation" className="mt-12 space-y-5">
     <div className="flex flex-wrap items-end justify-between gap-3"><div><div className="eyebrow flex items-center gap-2"><ShieldCheck size={13}/> V0.6 / Behavioural validation</div><h2 className="mt-2 text-2xl font-semibold tracking-tight">Test the model against reality.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">Pair SYNTHORA outputs with comparable published survey or outcome data. Measure error, bias and calibration diagnostics—without pretending a synthetic score is already validated.</p></div><span className="rounded-xl border border-amber-300/20 px-3 py-2 text-[10px] text-amber-100">BENCHMARKS REQUIRED</span></div>
     <div className="panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="eyebrow">01 / Benchmark registry</div><h3 className="mt-1 text-sm font-semibold">Add a paired observation</h3></div><div className="flex flex-wrap gap-2"><button onClick={()=>fileRef.current?.click()} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-emerald-200"><FileUp size={13}/>Import CSV / JSON</button><button onClick={exportJson} disabled={!rows.length} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs disabled:opacity-30"><Download size={13}/>JSON</button><button onClick={exportCsv} disabled={!rows.length} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs disabled:opacity-30"><Download size={13}/>CSV</button><input ref={fileRef} type="file" accept=".csv,.json,application/json,text/csv" className="hidden" onChange={e=>{const f=e.target.files?.[0];if(f)void importFile(f);}}/></div></div>
-      <p className="mt-2 text-[11px] leading-5 text-slate-500">Each row is one matched experiment: same market, population segment, product/question, outcome definition and reasonably aligned time period. Enter SYNTHORA's predicted index and the published observed percentage. Source URL is mandatory.</p>
+      <p className="mt-2 text-[11px] leading-5 text-slate-500">Each row is one matched experiment: same market, population segment, product/question, outcome definition and reasonably aligned time period. Enter SYNTHORA&apos;s predicted index and the published observed percentage. Source URL is mandatory.</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label className="text-[11px] text-slate-400">Market<select className="field mt-2 mb-0" value={market} onChange={e=>setMarket(e.target.value as Market)}>{markets.map(m=><option key={m[0]} value={m[0]}>{m[1]}</option>)}</select></label>
         <label className="text-[11px] text-slate-400">Comparable outcome<select className="field mt-2 mb-0" value={metric} onChange={e=>setMetric(e.target.value)}>{metrics.map(m=><option key={m}>{m}</option>)}</select></label>
@@ -92,7 +92,7 @@ export default function BehaviouralValidation() {
       <button onClick={add} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-300 px-4 py-3 text-sm font-semibold text-[#07110e]"><Plus size={15}/>Add benchmark pair</button>
       <div className="mt-3 rounded-xl border border-white/[.06] bg-black/20 p-3 text-[10px] leading-5 text-slate-500">CSV columns: <code>market,metric,predicted,observed,year,sampleSize,sourceName,sourceUrl,notes</code>. JSON import accepts an array or an object with a <code>benchmarks</code> array. Imports are validated; maximum 500 saved rows.</div>
     </div>
-    <div className="panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="eyebrow">02 / Validation diagnostics</div><h3 className="mt-1 text-sm font-semibold">Out-of-sample agreement summary</h3></div><select className="field mb-0 max-w-[190px]" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All markets</option>{markets.map(m=><option key={m[0]} value={m[0]}>{m[1]}</option>)}</select></div>
+    <div className="panel rounded-2xl p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="eyebrow">02 / Validation diagnostics</div><h3 className="mt-1 text-sm font-semibold">Out-of-sample agreement summary</h3></div><div className="flex flex-wrap gap-2"><select className="field mb-0 max-w-[190px]" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All markets</option>{markets.map(m=><option key={m[0]} value={m[0]}>{m[1]}</option>)}</select><select className="field mb-0 max-w-[220px]" value={metricFilter} onChange={e=>setMetricFilter(e.target.value)}><option value="all">All outcome types</option>{metrics.map(m=><option key={m}>{m}</option>)}</select></div></div>
       {!summary?<div className="mt-5 rounded-xl border border-dashed border-white/10 p-8 text-center text-xs text-slate-500">No benchmark pairs yet. Add or import real published observations to calculate validation metrics.</div>:<>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">{[["PAIRS",String(summary.n)],["MAE",summary.mae.toFixed(2)+" pp"],["RMSE",summary.rmse.toFixed(2)+" pp"],["BIAS",((summary.bias>0?"+":"")+summary.bias.toFixed(2))+" pp"],["WITHIN ±5",summary.within5.toFixed(0)+"%"],["WITHIN ±10",summary.within10.toFixed(0)+"%"]].map(([label,value])=><div key={label} className="rounded-xl bg-black/20 p-3"><div className="text-[9px] tracking-wider text-slate-500">{label}</div><div className="mt-1 text-lg font-semibold text-emerald-100">{value}</div></div>)}</div>
         <p className="mt-3 text-[10px] leading-5 text-slate-500">MAE and RMSE are in percentage points. Positive bias means SYNTHORA tends to overestimate. Within-threshold rates describe this uploaded benchmark set only.</p>
