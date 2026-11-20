@@ -1,7 +1,7 @@
 -- SYNTHORA Research Cloud schema. Apply only to the intended Supabase project after review.
 create extension if not exists pgcrypto;
 create table if not exists public.workspaces(id uuid primary key default gen_random_uuid(),name text not null check(char_length(name) between 1 and 80),owner_id uuid not null references auth.users(id) on delete cascade,created_at timestamptz not null default now());
-create table if not exists public.workspace_members(workspace_id uuid not null references public.workspaces(id) on delete cascade,user_id uuid not null references auth.users(id) on delete cascade,role text not null default 'member' check(role in ('owner','admin','researcher','viewer')),created_at timestamptz not null default now(),primary key(workspace_id,user_id));
+create table if not exists public.workspace_members(workspace_id uuid not null references public.workspaces(id) on delete cascade,user_id uuid not null references auth.users(id) on delete cascade,role text not null default 'researcher' check(role in ('owner','admin','researcher','viewer')),created_at timestamptz not null default now(),primary key(workspace_id,user_id));
 create table if not exists public.projects(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id) on delete cascade,name text not null check(char_length(name) between 1 and 100),description text not null default '',created_by uuid not null references auth.users(id),created_at timestamptz not null default now());
 create table if not exists public.experiments(id uuid primary key default gen_random_uuid(),project_id uuid not null references public.projects(id) on delete cascade,created_by uuid not null references auth.users(id),name text not null default 'Simulation run',input jsonb not null default '{}'::jsonb,result jsonb not null,created_at timestamptz not null default now());
 create table if not exists public.agent_memories(id uuid primary key default gen_random_uuid(),project_id uuid not null references public.projects(id) on delete cascade,user_id uuid not null references auth.users(id),agent_id text not null,memory jsonb not null default '{}'::jsonb,updated_at timestamptz not null default now(),unique(project_id,agent_id));
@@ -17,31 +17,41 @@ returns boolean language sql stable security definer set search_path=''
 as $$ select (select auth.uid()) is not null and (exists(select 1 from public.workspaces w where w.id=target_workspace and w.owner_id=(select auth.uid())) or exists(select 1 from public.workspace_members m where m.workspace_id=target_workspace and m.user_id=(select auth.uid()))); $$;
 create or replace function private.is_project_member(target_project uuid)
 returns boolean language sql stable security definer set search_path=''
-as $$ select (select auth.uid()) is not null and exists(select 1 from public.projects p where p.id=target_project and private.is_workspace_member(p.workspace_id)); $$;
+as $ select (select auth.uid()) is not null and exists(select 1 from public.projects p where p.id=target_project and private.is_workspace_member(p.workspace_id)); $;
+create or replace function private.can_write_workspace(target_workspace uuid)
+returns boolean language sql stable security definer set search_path=''
+as $ select (select auth.uid()) is not null and (exists(select 1 from public.workspaces w where w.id=target_workspace and w.owner_id=(select auth.uid())) or exists(select 1 from public.workspace_members m where m.workspace_id=target_workspace and m.user_id=(select auth.uid()) and m.role in ('owner','admin','researcher'))); $;
+create or replace function private.is_workspace_admin(target_workspace uuid)
+returns boolean language sql stable security definer set search_path=''
+as $ select (select auth.uid()) is not null and (exists(select 1 from public.workspaces w where w.id=target_workspace and w.owner_id=(select auth.uid())) or exists(select 1 from public.workspace_members m where m.workspace_id=target_workspace and m.user_id=(select auth.uid()) and m.role in ('owner','admin'))); $;
 revoke all on function private.is_workspace_member(uuid) from public;
 revoke all on function private.is_project_member(uuid) from public;
+revoke all on function private.can_write_workspace(uuid) from public;
+revoke all on function private.is_workspace_admin(uuid) from public;
 grant execute on function private.is_workspace_member(uuid) to authenticated;
 grant execute on function private.is_project_member(uuid) to authenticated;
+grant execute on function private.can_write_workspace(uuid) to authenticated;
+grant execute on function private.is_workspace_admin(uuid) to authenticated;
 alter table public.workspaces enable row level security;alter table public.workspace_members enable row level security;alter table public.projects enable row level security;alter table public.experiments enable row level security;alter table public.agent_memories enable row level security;alter table public.api_keys enable row level security;alter table public.api_requests enable row level security;
 create policy "workspace members read workspace" on public.workspaces for select to authenticated using(private.is_workspace_member(id));
 create policy "user creates own workspace" on public.workspaces for insert to authenticated with check(owner_id=(select auth.uid()));
 create policy "owner updates workspace" on public.workspaces for update to authenticated using(owner_id=(select auth.uid())) with check(owner_id=(select auth.uid()));
-create policy "members read membership" on public.workspace_members for select to authenticated using(user_id=(select auth.uid()) or public.is_workspace_member(workspace_id));
+create policy "members read membership" on public.workspace_members for select to authenticated using(user_id=(select auth.uid()) or private.is_workspace_member(workspace_id));
 create policy "owner adds initial self membership" on public.workspace_members for insert to authenticated with check(user_id=(select auth.uid()) and exists(select 1 from public.workspaces w where w.id=workspace_id and w.owner_id=(select auth.uid())));
-create policy "members read projects" on public.projects for select to authenticated using(public.is_workspace_member(workspace_id));
-create policy "members create projects" on public.projects for insert to authenticated with check(created_by=(select auth.uid()) and public.is_workspace_member(workspace_id));
+create policy "members read projects" on public.projects for select to authenticated using(private.is_workspace_member(workspace_id));
+create policy "members create projects" on public.projects for insert to authenticated with check(created_by=(select auth.uid()) and private.can_write_workspace(workspace_id));
 create policy "members read experiments" on public.experiments for select to authenticated using(private.is_project_member(project_id));
-create policy "members create experiments" on public.experiments for insert to authenticated with check(created_by=(select auth.uid()) and public.is_project_member(project_id));
-create policy "members delete own experiments" on public.experiments for delete to authenticated using(created_by=(select auth.uid()) and public.is_project_member(project_id));
-create policy "members read agent memories" on public.agent_memories for select to authenticated using(public.is_project_member(project_id));
-create policy "members write agent memories" on public.agent_memories for all to authenticated using(user_id=(select auth.uid()) and public.is_project_member(project_id)) with check(user_id=(select auth.uid()) and public.is_project_member(project_id));
-create policy "workspace admins read api keys" on public.api_keys for select to authenticated using(created_by=(select auth.uid()) and public.is_workspace_member(workspace_id));
-create policy "workspace members create own api keys" on public.api_keys for insert to authenticated with check(created_by=(select auth.uid()) and public.is_workspace_member(workspace_id));
+create policy "members create experiments" on public.experiments for insert to authenticated with check(created_by=(select auth.uid()) and private.is_project_member(project_id) and exists(select 1 from public.projects p where p.id=project_id and private.can_write_workspace(p.workspace_id)));
+create policy "members delete own experiments" on public.experiments for delete to authenticated using(created_by=(select auth.uid()) and private.is_project_member(project_id));
+create policy "members read agent memories" on public.agent_memories for select to authenticated using(private.is_project_member(project_id));
+create policy "members write agent memories" on public.agent_memories for all to authenticated using(user_id=(select auth.uid()) and private.is_project_member(project_id) and exists(select 1 from public.projects p where p.id=project_id and private.can_write_workspace(p.workspace_id))) with check(user_id=(select auth.uid()) and private.is_project_member(project_id) and exists(select 1 from public.projects p where p.id=project_id and private.can_write_workspace(p.workspace_id)));
+create policy "workspace admins read api keys" on public.api_keys for select to authenticated using(created_by=(select auth.uid()) and private.is_workspace_member(workspace_id));
+create policy "workspace admins create own api keys" on public.api_keys for insert to authenticated with check(created_by=(select auth.uid()) and private.is_workspace_admin(workspace_id));
 create policy "owners revoke own api keys" on public.api_keys for update to authenticated using(created_by=(select auth.uid())) with check(created_by=(select auth.uid()));
 create policy "api request owner reads" on public.api_requests for select to authenticated using(exists(select 1 from public.api_keys k where k.id=api_key_id and k.created_by=(select auth.uid())));
 insert into storage.buckets(id,name,public,file_size_limit) values('synthora-research','synthora-research',false,52428800) on conflict(id) do nothing;
-create policy "workspace users read private research files" on storage.objects for select to authenticated using(bucket_id='synthora-research' and public.is_workspace_member((storage.foldername(name))[1]::uuid));
-create policy "workspace users upload private research files" on storage.objects for insert to authenticated with check(bucket_id='synthora-research' and public.is_workspace_member((storage.foldername(name))[1]::uuid));
+create policy "workspace users read private research files" on storage.objects for select to authenticated using(bucket_id='synthora-research' and private.can_write_workspace((storage.foldername(name))[1]::uuid));
+create policy "workspace users upload private research files" on storage.objects for insert to authenticated with check(bucket_id='synthora-research' and private.is_workspace_member((storage.foldername(name))[1]::uuid));
 
 -- New public-schema tables are not automatically exposed by the Supabase Data API on current projects.
 grant select,insert,update,delete on public.workspaces,public.workspace_members,public.projects,public.experiments,public.agent_memories,public.api_keys to authenticated;
