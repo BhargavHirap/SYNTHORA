@@ -57,7 +57,7 @@ export default function ResearchIntelligence() {
     if (!dataset || !question.trim()) return;
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/research-synthesis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, evidence: latest }) });
+      const response = await fetch("/api/research-synthesis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, markets }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Evidence synthesis failed.");
       setReport(result);
