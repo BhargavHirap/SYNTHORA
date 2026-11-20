@@ -1,5 +1,9 @@
 # SYNTHORA
 
+**GitHub repository:** https://github.com/BhargavHirap/SYNTHORA  
+**Open the project:** [BhargavHirap/SYNTHORA](https://github.com/BhargavHirap/SYNTHORA)  
+**Latest development:** [Pull request #8](https://github.com/BhargavHirap/SYNTHORA/pull/8)
+
 **Simulate Humanity. Understand Tomorrow.**
 
 SYNTHORA is a research workspace for exploring how explicitly synthetic population cohorts may respond to products, prices and messages across markets.
@@ -218,3 +222,17 @@ The first API release is synchronous and capped; durable background queues, bill
 - No automatic consequential actions, no participant contact, no experiment claims of real-world validation and no cross-device sync.
 
 To enable search, set TAVILY_API_KEY as a server-side Vercel environment variable. Without it, paste up to five public URLs into Manual source URLs and approve collection. Do not use private, authenticated or confidential URLs. The collector is a lightweight HTML/text intake tool; PDF text extraction is not included. It does not establish factual accuracy or publisher authority.
+
+
+## v1.8 — Experimental Intelligence & Automated Validation
+
+- Preregistered experiment plans with research question, falsifiable hypothesis, control/treatment, primary metric, target population, allocation, sample plan, duration and stopping/success rule.
+- Sample-size planning for a two-arm difference in proportions using an approximate normal-theory calculation (two-sided alpha 0.05; 80% power default).
+- Aggregate two-arm outcome analysis: rates, absolute risk difference, approximate 95% confidence interval, pooled two-proportion z-test, p-value, Cohen's h and relative lift.
+- Explicit evidence provenance fields and a descriptive simulation-versus-observed comparison; no automatic model validation claims.
+- Transparent plan-completeness checklist and reproducible JSON report export.
+- Browser-local experiment registry (up to 50 plans); no participant-level records are collected or stored.
+
+### Statistical and operational limits
+
+The v1.8 calculations use normal approximations and are not suitable for every small-sample, clustered, stratified, sequential or multiple-testing design. The quality score describes documentation completeness, not scientific validity. SYNTHORA does not recruit, randomize, contact or monitor participants, run interventions, verify supplied data, or grant ethics approval. Researchers remain responsible for study design, consent, privacy, preregistration and appropriate statistical review. Simulation/observed differences are descriptive until populations, measures and collection methods are aligned and independent validation is performed.
