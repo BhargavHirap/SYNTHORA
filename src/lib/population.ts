@@ -35,7 +35,7 @@ function pick<T>(items: T[], weights: number[], random: () => number): T { const
 const ageLabels = ["18–24", "25–34", "35–54", "55+"];
 function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] {
   const random = rng(input.seed + "|" + input.country + "|" + input.sampleSize);
-  const old = new Map((input.previousAgents || []).map(a => [a.id, a]));
+  const old = new Map<string, SyntheticAgent>((input.previousAgents || []).map(a => [a.id, a] as const));
   return Array.from({length: input.sampleSize}, (_, i) => {
     const id = input.seed + "-agent-" + String(i+1).padStart(5,"0");
     const prior = old.get(id);
@@ -44,9 +44,9 @@ function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] 
     const [lo,hi] = ageRange[ageBand];
     return {
       id, age: lo + Math.floor(random()*(hi-lo+1)), ageBand,
-      gender: pick(["Female","Male","Non-binary"], [profile.female, 100-profile.female-1, 1], random),
-      residence: pick(["Urban","Rural"], [profile.urban,100-profile.urban], random),
-      income: pick(["Lower","Middle","Higher"], profile.income, random),
+      gender: pick(["Female","Male","Non-binary"], [profile.female, 100-profile.female-1, 1], random) as SyntheticAgent["gender"],
+      residence: pick(["Urban","Rural"], [profile.urban,100-profile.urban], random) as SyntheticAgent["residence"],
+      income: pick(["Lower","Middle","Higher"], profile.income, random) as SyntheticAgent["income"],
       language: input.language || profile.languages[0],
       priceSensitivity: Math.round(random()*100), noveltySeeking: Math.round(random()*100),
       trustPropensity: Math.round(random()*100), socialInfluence: Math.round(random()*100),
