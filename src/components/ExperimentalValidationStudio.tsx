@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { BarChart3, ClipboardCheck, Download, FlaskConical, Plus, ShieldAlert, Trash2 } from "lucide-react";
 import {
   analyzeTwoArm, createExperimentReport, experimentQuality, requiredSamplePerArm,
@@ -22,7 +23,7 @@ const blankPlan = (): ExperimentPlan => ({
 
 const inputClass = "field w-full";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return <label className="block text-[11px] text-slate-400">{label}<div className="mt-1.5">{children}</div></label>;
 }
 
