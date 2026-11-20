@@ -66,7 +66,18 @@ export default function ResearchIntelligence() {
     finally { setBusy(false); }
   }
 
-  function exportDataset() {\n    if (!dataset) return;\n    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: "application/json" });\n    const url = URL.createObjectURL(blob); const a = document.createElement("a");\n    a.href = url; a.download = `synthora-global-data-${(dataset.datasetVersion || "snapshot").toLowerCase()}.json`; a.click(); URL.revokeObjectURL(url);\n  }\n\n  function exportReport() {
+  function exportDataset() {
+    if (!dataset) return;
+    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `synthora-global-data-${(dataset.datasetVersion || "snapshot").toLowerCase()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportReport() {
     if (!report) return;
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob); const a = document.createElement("a");
