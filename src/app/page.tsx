@@ -7,6 +7,7 @@ import { loadExperiments, saveExperiment, deleteExperiment } from "@/lib/experim
 import CognitiveLab from "@/components/CognitiveLab";
 import LLMAgentLab from "@/components/LLMAgentLab";
 import ResearchIntelligence from "@/components/ResearchIntelligence";
+import CalibrationLab from "@/components/CalibrationLab";
 
 const countries: {code:CountryCode;name:string}[]=[{code:"IN",name:"India"},{code:"US",name:"United States"},{code:"GB",name:"United Kingdom"},{code:"DE",name:"Germany"},{code:"JP",name:"Japan"},{code:"BR",name:"Brazil"}];
 const currency:Record<CountryCode,string>={IN:"INR",US:"USD",GB:"GBP",DE:"EUR",JP:"JPY",BR:"BRL"};
@@ -88,6 +89,7 @@ export default function Home(){
   <CognitiveLab />
   <LLMAgentLab />
   <ResearchIntelligence />
+  <CalibrationLab />
   <footer className="mt-12 flex flex-col justify-between gap-3 border-t border-white/[.08] pt-6 text-[10px] text-slate-600 sm:flex-row"><span>© 2026 SYNTHORA · POPULATION INTELLIGENCE ENGINE</span><span>Research prototype · Synthetic scenarios are not real-world evidence</span></footer>
  </div></main>;
 }

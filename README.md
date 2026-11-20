@@ -6,6 +6,18 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v0.6 — Behavioural Calibration & Validation
+
+- Import matched model-prediction and real-observation pairs using a documented CSV template.
+- Validate ranges, required fields, source labels, years and sample sizes before analysis.
+- Calculate mean absolute error (MAE), root mean squared error (RMSE), signed bias and Pearson correlation.
+- Compare predicted and observed averages across score bands.
+- Inspect each benchmark row with its market, scenario, year, sample size and source provenance.
+- Export an evaluation report as JSON.
+- Keep the evaluation descriptive and separate from simulator parameters; importing benchmarks does not silently train or tune the model.
+
+The v0.6 evaluation workspace starts with clearly labelled illustrative demo rows. They are not real survey results and must be replaced before reporting any validation score. For a defensible holdout evaluation, predictions and observations must match on outcome definition, population, market and time window. Metrics apply only to the supplied benchmark rows; they do not establish generalisation or causal validity.
+
 ## v0.5 — Research Intelligence Layer
 
 - Fetch live public macro indicators from the World Bank World Development Indicators API for India, United States, United Kingdom, Germany, Japan and Brazil.

@@ -39,3 +39,9 @@ Optional synthesis flow: browser sends the selected observations and research qu
 - Country-level aggregates must not be used to infer individual-level preferences (ecological fallacy) or causality.
 - Latest non-empty observations can have different reference years; the UI displays years alongside values.
 - AI summaries are interpretation aids, not validated statistical models or representative consumer research.
+
+## v0.6 benchmark evaluation flow
+
+User-supplied CSV → strict header/range/source/year/sample-size validation in browser → matched prediction/observation pairs → descriptive error metrics (MAE, RMSE, signed bias, Pearson correlation) and predicted-vs-observed score bands → downloadable JSON report.
+
+The evaluation tool does not train or tune the simulator. Every benchmark row retains its source label and reference year. Demo rows are explicitly illustrative and cannot be cited as empirical validation. For credible holdout testing, the benchmark must match the simulator outcome definition, target population, market and time period. Aggregate scores are not proof of generalisation.
