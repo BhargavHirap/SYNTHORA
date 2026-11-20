@@ -14,6 +14,13 @@ const INDICATORS = {
   "IT.NET.USER.ZS": { label: "Individuals using the Internet", unit: "% of population" },
   "SP.URB.TOTL.IN.ZS": { label: "Urban population", unit: "% of population" },
   "SL.UEM.TOTL.ZS": { label: "Unemployment, total", unit: "% of labour force" },
+  "SP.POP.0014.TO.ZS": { label: "Population ages 0–14", unit: "% of total population" },
+  "SP.POP.1564.TO.ZS": { label: "Population ages 15–64", unit: "% of total population" },
+  "SP.POP.65UP.TO.ZS": { label: "Population ages 65+", unit: "% of total population" },
+  "SP.RUR.TOTL.ZS": { label: "Rural population", unit: "% of total population" },
+  "SL.TLF.CACT.ZS": { label: "Labour force participation", unit: "% of population ages 15+" },
+  "IT.CEL.SETS.P2": { label: "Mobile cellular subscriptions", unit: "per 100 people" },
+  "SE.SEC.ENRR": { label: "School enrolment, secondary", unit: "% gross" },
 } as const;
 type IndicatorCode = keyof typeof INDICATORS;
 
@@ -43,12 +50,12 @@ export async function GET(req: NextRequest) {
       };
     }).sort((a, b) => a.market.localeCompare(b.market) || a.indicatorCode.localeCompare(b.indicatorCode) || b.year - a.year);
     return NextResponse.json({
-      provider: "World Bank — World Development Indicators", sourceId: "2",
+      provider: "World Bank — World Development Indicators", sourceId: "2", datasetVersion: "SYNTHORA-GLOBAL-2026.1",
       sourceUrl: "https://data.worldbank.org/indicator", apiUrl: sourceUrl,
       lastUpdated: meta.lastupdated || null, retrievedAt: new Date().toISOString(),
       markets: markets.map(code => ({ code, name: MARKETS[code].name })),
       indicators: Object.entries(INDICATORS).map(([code, v]) => ({ code, ...v })),
-      data, caveat: "Latest available observations are not necessarily from the same year. Missing values are omitted. These macro indicators describe countries; they do not directly measure an individual consumer segment or explain causation.",
+      data, methodology: "Seven additional demographic, connectivity and labour/education indicators are included alongside the original macroeconomic series. The API returns up to five most recent non-empty observations per indicator and market.", caveat: "Latest available observations are not necessarily from the same year. Missing values are omitted. These country-level indicators are contextual evidence, not individual-level distributions or proof of causation. Gross enrolment can exceed 100%.",
     }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
   } catch (error) {
     console.error("SYNTHORA research data fetch failed", error);
