@@ -6,6 +6,17 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v1.4 — Autonomous Research Agents
+
+- Five-role research council: Research Director, Skeptic, Evidence Auditor, Behavioural Scientist and Experiment Designer.
+- Converts a saved cognitive simulation into falsifiable hypotheses, adversarial challenges, source/evidence gaps, contradictions and prioritized follow-up experiments.
+- Adds decision gates, experiment success metrics and explicit limitations to prevent synthetic outputs being mistaken for real-world evidence.
+- Uses one bounded Vercel AI Gateway orchestration request when `AI_GATEWAY_API_KEY` is configured; the server validates and bounds generated report fields and filters hypothesis source references against supplied evidence IDs.
+- Includes a clearly labelled deterministic fallback research plan when AI Gateway is not configured or unavailable. Fallback mode is useful for workflow testing but is not an LLM agent run.
+- Dashboard reads local cognitive experiment history and the latest saved public-evidence synthesis, and exports the complete research council report as JSON.
+
+The research council is an analysis and study-design assistant, not a self-directed system that contacts participants, executes experiments, or makes launch decisions. Synthetic agents are not respondents. Independent data, ethical review, sampling plans and preregistered outcomes remain necessary.
+
 ## v1.3 — Advanced Simulation Intelligence
 
 - Analyse saved cognitive simulation runs across selected markets without making additional LLM calls.
