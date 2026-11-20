@@ -2,24 +2,36 @@
 
 **Simulate Humanity. Understand Tomorrow.**
 
-SYNTHORA is an early-stage global population and behavioural simulation workspace. It helps teams explore how statistically described synthetic population segments might react to products, prices and messages.
+SYNTHORA is a research workspace for exploring how explicitly synthetic population cohorts may respond to products, prices and messages across markets.
 
-> Research tool, not a crystal ball. Simulated responses are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts. Validate important decisions with real people and observed outcomes.
+> Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
-## Current MVP
+## v0.2 — Population Intelligence Engine
 
-- Create a market experiment with a product, price, market and audience.
-- Generate a transparent synthetic segment mix.
-- Explore simulated purchase-intent bands, objections and messaging opportunities.
-- Run with a deterministic local demo engine, or add an OpenAI API key for AI-generated qualitative analysis.
-- Review limitations and validation guidance alongside every result.
+- Generate individual synthetic adult agents with reproducible cohort IDs.
+- Select country and language configurations for India, United States, United Kingdom, Germany, Japan and Brazil.
+- Assign agent-level demographic fields and behavioural traits (price sensitivity, novelty seeking, trust propensity, social influence and quality orientation).
+- Run up to six scenario variants against the same cohort for paired comparisons.
+- Simulate simplified peer influence over a deterministic network.
+- Carry agent exposure history and affinity memory between runs when the cohort is reused.
+- Persist experiments and agent memory in browser IndexedDB; inspect, reopen and delete saved runs.
+- Compare scenario intent indices, segment signals, objections and interaction lift.
+
+## Important data and model limitations
+
+Country profiles are **illustrative starter priors**, not official census distributions, calibrated population estimates, or probability samples. Replace each profile with documented, versioned sources (national statistics offices and international statistical datasets) before making country-level claims.
+
+Agent traits are generated synthetic variables. They are not inferred from or linked to identifiable people. The interaction model is a simplified network heuristic, not a validated theory of human behaviour. Intent indices are not purchase probabilities or forecasts.
+
+Saved experiments currently live in the browser that created them. They are not synced across devices or shared between team members. A managed database and authentication layer are a separate infrastructure milestone.
 
 ## Stack
 
 - Next.js App Router + TypeScript
 - Tailwind CSS
-- Recharts
-- OpenAI Chat Completions API (optional server-side integration)
+- Recharts and Lucide
+- Deterministic synthetic population engine
+- Browser IndexedDB for local experiment persistence
 
 ## Run locally
 
@@ -33,11 +45,9 @@ npm run dev
 
 Open http://localhost:3000.
 
-The app works without credentials in **Demo mode**. To enable AI-assisted qualitative analysis, set `OPENAI_API_KEY` in `.env.local`. The key is used only by the server route and must never be prefixed with `NEXT_PUBLIC_`.
-
 ## Deploy
 
-Import this repository into Vercel. Set `OPENAI_API_KEY` as a server-side environment variable if AI-assisted analysis is wanted. The demo engine works without it.
+Import this repository into Vercel. Configure server-side environment variables only; never expose provider secrets with a `NEXT_PUBLIC_` prefix.
 
 ## Product principles
 
@@ -50,15 +60,18 @@ Import this repository into Vercel. Set `OPENAI_API_KEY` as a server-side enviro
 
 ## Roadmap
 
-- [x] Experiment builder and responsive research dashboard
-- [x] Synthetic segment generator with transparent illustrative priors
-- [x] Demo simulation API
-- [x] Optional OpenAI qualitative analysis
-- [ ] Country-specific statistical population packs with citations and versioning
-- [ ] Real-world calibration and holdout evaluation
-- [ ] Saved experiments, authentication and team workspaces
-- [ ] Network/contagion simulation with explicit assumptions
-- [ ] Batch execution, budgets and audit logs
+- [x] Experiment builder and research dashboard
+- [x] Synthetic population generator with country/language starter profiles
+- [x] Individual agent characteristics and deterministic cohort IDs
+- [x] Simplified multi-agent network interaction
+- [x] Up to six paired scenario comparisons
+- [x] Browser-persistent experiment archive and agent memory
+- [ ] Official country demographic packs with citations, provenance and versioning
+- [ ] Calibrated trait distributions and validation against real-world holdout studies
+- [ ] Managed database, authentication and cross-device/team workspaces
+- [ ] Richer multi-round agent conversations and auditable memory updates
+- [ ] Batch execution workers, run budgets and audit logs
+- [ ] Exportable research reports
 
 ## License
 
