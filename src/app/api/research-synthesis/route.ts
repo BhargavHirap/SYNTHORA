@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     // Fetch trusted observations server-side. Never treat browser-supplied values as authoritative evidence.
     const codes = selected.map(x => MARKETS[x].iso3).join(";");
     const indicatorCodes = Object.keys(INDICATORS).join(";");
-    const apiUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicatorCodes}?source=2&format=json&mrnev=5&per_page=300`;
+    const apiUrl = `https://api.worldbank.org/v2/country/${codes}/indicator/${indicatorCodes}?source=2&format=json&mrnev=5&per_page=1000`;
     const upstream = await fetch(apiUrl, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(20000), next: { revalidate: 3600 } });
     if (!upstream.ok) throw new Error(`World Bank API returned ${upstream.status}`);
     const wb = await upstream.json() as [{ lastupdated?: string }, Array<{ countryiso3code?: string; country?: { value?: string }; indicator?: { id?: string; value?: string }; date?: string; value?: number | null; unit?: string }> | null];
