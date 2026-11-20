@@ -83,15 +83,6 @@ export default function ResearchControlPlane() {
 
   if (!workspace || !assessment || !readiness) return <section className="panel rounded-2xl p-6 text-sm text-slate-400">Loading research control plane…</section>;
   const p = workspace.protocol;
-  const Field = ({ label, value, onChange, placeholder = "", multiline = false }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; multiline?: boolean }) => (
-    <label className="block">
-      <span className="mb-2 block text-[11px] text-slate-400">{label}</span>
-      {multiline
-        ? <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="field min-h-20" />
-        : <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="field" />}
-    </label>
-  );
-
   return <section className="mt-10 space-y-5" id="research-control-plane">
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div><div className="eyebrow flex items-center gap-2"><Activity size={13}/> SYNTHORA v2.0 / Research operating system</div>
@@ -117,20 +108,20 @@ export default function ResearchControlPlane() {
       <div className="panel rounded-2xl p-5">
         <div className="mb-5 flex items-center justify-between gap-3"><div><div className="eyebrow">01 / Study design</div><h3 className="mt-2 text-lg font-semibold">Research protocol</h3></div><span className="rounded-full border border-white/10 px-3 py-1 text-[10px] text-slate-400">v{p.version}</span></div>
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="md:col-span-2"><Field label="Protocol title" value={p.title} onChange={title => updateProtocol({ title })} placeholder="A concise title for this study"/></div>
-          <div className="md:col-span-2"><Field label="Research question" value={p.question} onChange={question => updateProtocol({ question })} placeholder="What relationship or outcome will this study investigate?" multiline/></div>
-          <div className="md:col-span-2"><Field label="Hypothesis / exploratory rationale" value={p.hypothesis} onChange={hypothesis => updateProtocol({ hypothesis })} placeholder="State what evidence would support or challenge the expectation." multiline/></div>
-          <Field label="Research domain" value={p.domain} onChange={domain => updateProtocol({ domain })} placeholder="Public health, economics, climate…"/>
-          <Field label="Geography" value={p.geography} onChange={geography => updateProtocol({ geography })} placeholder="India / Maharashtra / global"/>
-          <Field label="Target population" value={p.targetPopulation} onChange={targetPopulation => updateProtocol({ targetPopulation })} placeholder="Population or units the study describes"/>
-          <Field label="Primary outcome and measurement" value={p.primaryOutcome} onChange={primaryOutcome => updateProtocol({ primaryOutcome })} placeholder="Outcome, unit and measurement procedure"/>
-          <div className="md:col-span-2"><Field label="Methodology / study design" value={p.method} onChange={method => updateProtocol({ method })} placeholder="Observational cohort, controlled experiment, systematic review…" multiline/></div>
-          <Field label="Sampling frame and strategy" value={p.sampling} onChange={sampling => updateProtocol({ sampling })} placeholder="Sampling frame, selection and sample size"/>
-          <Field label="Inclusion criteria" value={p.inclusionCriteria} onChange={inclusionCriteria => updateProtocol({ inclusionCriteria })} placeholder="What qualifies for inclusion?"/>
-          <Field label="Exclusion criteria" value={p.exclusionCriteria} onChange={exclusionCriteria => updateProtocol({ exclusionCriteria })} placeholder="What is excluded and why?"/>
-          <div className="md:col-span-2"><Field label="Pre-specified analysis plan" value={p.analysisPlan} onChange={analysisPlan => updateProtocol({ analysisPlan })} placeholder="Outcomes, statistical methods, missing data, sensitivity analysis…" multiline/></div>
-          <div className="md:col-span-2"><Field label="Known limitations, bias and confounders" value={p.limitations} onChange={limitations => updateProtocol({ limitations })} placeholder="Coverage gaps, confounding, measurement error, generalisability…" multiline/></div>
-          <Field label="Protocol owner / team" value={p.owner} onChange={owner => updateProtocol({ owner })} placeholder="Researcher or team"/>
+          <div className="md:col-span-2"><ProtocolField label="Protocol title" value={p.title} onChange={title => updateProtocol({ title })} placeholder="A concise title for this study"/></div>
+          <div className="md:col-span-2"><ProtocolField label="Research question" value={p.question} onChange={question => updateProtocol({ question })} placeholder="What relationship or outcome will this study investigate?" multiline/></div>
+          <div className="md:col-span-2"><ProtocolField label="Hypothesis / exploratory rationale" value={p.hypothesis} onChange={hypothesis => updateProtocol({ hypothesis })} placeholder="State what evidence would support or challenge the expectation." multiline/></div>
+          <ProtocolField label="Research domain" value={p.domain} onChange={domain => updateProtocol({ domain })} placeholder="Public health, economics, climate…"/>
+          <ProtocolField label="Geography" value={p.geography} onChange={geography => updateProtocol({ geography })} placeholder="India / Maharashtra / global"/>
+          <ProtocolField label="Target population" value={p.targetPopulation} onChange={targetPopulation => updateProtocol({ targetPopulation })} placeholder="Population or units the study describes"/>
+          <ProtocolField label="Primary outcome and measurement" value={p.primaryOutcome} onChange={primaryOutcome => updateProtocol({ primaryOutcome })} placeholder="Outcome, unit and measurement procedure"/>
+          <div className="md:col-span-2"><ProtocolField label="Methodology / study design" value={p.method} onChange={method => updateProtocol({ method })} placeholder="Observational cohort, controlled experiment, systematic review…" multiline/></div>
+          <ProtocolField label="Sampling frame and strategy" value={p.sampling} onChange={sampling => updateProtocol({ sampling })} placeholder="Sampling frame, selection and sample size"/>
+          <ProtocolField label="Inclusion criteria" value={p.inclusionCriteria} onChange={inclusionCriteria => updateProtocol({ inclusionCriteria })} placeholder="What qualifies for inclusion?"/>
+          <ProtocolField label="Exclusion criteria" value={p.exclusionCriteria} onChange={exclusionCriteria => updateProtocol({ exclusionCriteria })} placeholder="What is excluded and why?"/>
+          <div className="md:col-span-2"><ProtocolField label="Pre-specified analysis plan" value={p.analysisPlan} onChange={analysisPlan => updateProtocol({ analysisPlan })} placeholder="Outcomes, statistical methods, missing data, sensitivity analysis…" multiline/></div>
+          <div className="md:col-span-2"><ProtocolField label="Known limitations, bias and confounders" value={p.limitations} onChange={limitations => updateProtocol({ limitations })} placeholder="Coverage gaps, confounding, measurement error, generalisability…" multiline/></div>
+          <ProtocolField label="Protocol owner / team" value={p.owner} onChange={owner => updateProtocol({ owner })} placeholder="Researcher or team"/>
           <label className="block"><span className="mb-2 block text-[11px] text-slate-400">Workflow stage</span><select value={p.stage} onChange={e => changeStage(e.target.value as ResearchProtocol["stage"])} className="field"><option value="discovery">Discovery</option><option value="design">Design</option><option value="data_collection">Data collection</option><option value="analysis">Analysis</option><option value="review">Review</option><option value="archived">Archived</option></select></label>
           <label className="block"><span className="mb-2 block text-[11px] text-slate-400">Ethics review status</span><select value={p.ethicsReview} onChange={e => updateProtocol({ ethicsReview: e.target.value as ResearchProtocol["ethicsReview"] })} className="field"><option value="required">Required / not resolved</option><option value="not_applicable">Not applicable (document rationale separately)</option><option value="in_review">In review</option><option value="approved">Approved by relevant body</option></select></label>
           <label className="block"><span className="mb-2 block text-[11px] text-slate-400">Data sensitivity</span><select value={p.dataSensitivity} onChange={e => updateProtocol({ dataSensitivity: e.target.value as ResearchProtocol["dataSensitivity"] })} className="field"><option value="public">Public / non-personal</option><option value="internal">Internal</option><option value="personal">Personal data</option><option value="sensitive">Sensitive personal data</option></select></label>
@@ -180,4 +171,13 @@ export default function ResearchControlPlane() {
     </div>
     <div className="rounded-xl border border-amber-300/15 bg-amber-300/[.035] p-4 text-[10px] leading-5 text-amber-100/70"><FileText size={13} className="mr-2 inline"/>Scientific integrity: evidence classifications are user assessments; source URLs are not verified; no ethics approval is granted; no human-subject data should be stored here; synthetic simulation outputs are not empirical observations. Workspace data is browser-local until a separately configured authenticated cloud workspace is enabled.</div>
   </section>;
+}
+
+function ProtocolField({ label, value, onChange, placeholder = "", multiline = false }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; multiline?: boolean }) {
+  return <label className="block">
+    <span className="mb-2 block text-[11px] text-slate-400">{label}</span>
+    {multiline
+      ? <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="field min-h-20" />
+      : <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="field" />}
+  </label>;
 }
