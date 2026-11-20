@@ -1,5 +1,20 @@
 # SYNTHORA
 
+## v1.9–v2.1 — Scientific Intelligence & Research Benchmarking
+
+- Import user-supplied benchmark datasets in CSV or JSON; normalize prediction/observation pairs and retain dataset/model version, market, metric, unit, split, source provenance, sample size, observation date, evaluation method and run seed.
+- Generate a CSV template for reproducible dataset intake. The template is a schema example, not ground truth; no fabricated benchmark observations are bundled.
+- Evaluate holdout predictions with MAE, RMSE, signed bias, MAPE (excluding zero observations), Pearson correlation, descriptive calibration slope/intercept and Brier score for probability rows.
+- Inspect probability reliability bins, prediction-versus-observation ledger, per-market metrics and cross-country comparisons using the same metric filter.
+- Score reproducibility metadata completeness across dataset/model versions, source, date, method, seed and holdout availability. The score is a checklist, not a scientific-validity grade.
+- Export a complete JSON research report containing source records, aggregate diagnostics, country comparisons, calibration bins, metadata and explicit limitations.
+- Keep up to 1,000 benchmark records in browser-local storage. Import/export runs entirely in the browser; no participant-level personal data is required.
+
+### Scientific and data safeguards
+
+The system does not silently fetch or invent benchmark truth. Researchers must supply documented, comparable observations. A holdout set only counts as holdout if it was not used for model tuning. Metrics across countries are descriptive unless outcome definitions, units, time windows and sampling frames are harmonised. Correlation is not agreement; MAPE is undefined at zero; Brier interpretation requires probability forecasts and binary outcomes. Calibration regression is a descriptive diagnostic, not a substitute for proper calibration assessment. This release is a benchmarking workflow, not proof that SYNTHORA predicts real populations.
+
+
 **GitHub repository:** https://github.com/BhargavHirap/SYNTHORA  
 **Open the project:** [BhargavHirap/SYNTHORA](https://github.com/BhargavHirap/SYNTHORA)  
 **Latest development:** [Pull request #8](https://github.com/BhargavHirap/SYNTHORA/pull/8)
@@ -190,7 +205,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [x] Cross-country what-if simulation and Monte Carlo model-sensitivity intervals
 - [x] Seeded experiment history and JSON export
 - [ ] Batch execution workers, run budgets and audit logs
-- [x] Exportable research execution records (browser-local JSON)\n- [x] Human-approved external source intake and execution history\n- [ ] Durable background workers, team-shared execution logs and auditable cloud storage
+- [x] Scientific benchmark studio: CSV/JSON dataset intake, holdout validation, probability calibration diagnostics, cross-market comparison and reproducibility scoring\n- [x] Exportable research execution records (browser-local JSON)\n- [x] Human-approved external source intake and execution history\n- [ ] Durable background workers, team-shared execution logs and auditable cloud storage
 
 ## License
 
