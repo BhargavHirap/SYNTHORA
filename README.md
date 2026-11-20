@@ -6,6 +6,16 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v0.7 — Global Population Data Foundation
+
+- Expand the public World Bank evidence pack from five to twelve indicators across six markets: India, United States, United Kingdom, Germany, Japan and Brazil.
+- Add population age structure (0–14, 15–64, 65+), rural population share, labour-force participation, mobile subscriptions and secondary school enrolment.
+- Version the data contract as `SYNTHORA-GLOBAL-2026.1`, preserve source metadata and observation years, and export a timestamped raw JSON snapshot from the browser.
+- Ground optional AI synthesis in the expanded server-fetched evidence set; evidence references are validated against fetched observation IDs.
+- Continue to omit missing observations instead of filling or fabricating values.
+
+The data pack provides country-level context, not segment-level distributions or individual preferences. Indicator years can differ; gross school enrolment may exceed 100%; mobile subscriptions per 100 people are not the same as unique users. Country context must not be presented as causal evidence or a representative consumer sample.
+
 ## v0.6 — Behavioural Validation & Calibration Diagnostics
 
 - Add a benchmark registry for paired SYNTHORA predictions and comparable published outcomes.
@@ -117,7 +127,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [x] Simplified multi-agent network interaction
 - [x] Up to six paired scenario comparisons
 - [x] Browser-persistent experiment archive and agent memory
-- [x] Public macro indicator ingestion with source links, observation years and evidence-linked AI research briefs\n- [ ] Official country demographic packs with citations, provenance and versioning
+- [x] Public macro and demographic indicator ingestion with source links, observation years and evidence-linked AI research briefs\n- [ ] Official country demographic packs with citations, provenance and versioning
 - [ ] Calibrated trait distributions and validation against real-world holdout studies
 - [ ] Managed database, authentication and cross-device/team workspaces
 - [x] Heuristic multi-round agent conversations and behavioural adaptation
