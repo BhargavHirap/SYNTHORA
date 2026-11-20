@@ -37,13 +37,16 @@ const ageRanges: Record<string,[number,number]> = {"18–24":[18,24],"25–34":[
 function audienceAgeBounds(audience:string):[number,number]{const match=audience.match(/(\d{1,2})\s*(?:-|–|to)\s*(\d{1,2})/i);if(!match)return [18,78];const low=Math.max(18,Math.min(78,Number(match[1])));const high=Math.max(low,Math.min(78,Number(match[2])));return [low,high];}
 function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] {
   const random = rng(input.seed + "|" + input.country);
+  const [audienceMin, audienceMax] = audienceAgeBounds(input.audience);
+  const bandWeights = ageLabels.map((label, index) => { const [lo, hi] = ageRanges[label]; const overlap = Math.max(0, Math.min(hi, audienceMax) - Math.max(lo, audienceMin) + 1); return profile.age[index] * overlap / (hi - lo + 1); });
   const old = new Map<string, SyntheticAgent>((input.previousAgents || []).map(a => [a.id, a] as const));
   return Array.from({length: input.sampleSize}, (_, i) => {
     const id = input.seed + "-agent-" + String(i+1).padStart(5,"0");
     const prior = old.get(id);
-    const ageBand = pick(ageLabels, profile.age, random);
-    const ageRange: Record<string,[number,number]> = {"18–24":[18,24],"25–34":[25,34],"35–54":[35,54],"55+":[55,78]};
-    const [lo,hi] = ageRange[ageBand];
+    const ageBand = pick(ageLabels, bandWeights, random);
+    const [bandLow, bandHigh] = ageRanges[ageBand];
+    const lo = Math.max(bandLow, audienceMin);
+    const hi = Math.min(bandHigh, audienceMax);
     return {
       id, age: lo + Math.floor(random()*(hi-lo+1)), ageBand,
       gender: pick(["Female","Male","Non-binary"], [profile.female, 100-profile.female-1, 1], random) as SyntheticAgent["gender"],
@@ -83,7 +86,6 @@ export function runPopulationSimulation(input: PopulationInput): PopulationResul
     const objections=[{label:"Price / value mismatch",count:agents.filter(a=>a.priceSensitivity>70&&s.price>20).length},{label:"Insufficient trust signals",count:agents.filter(a=>a.trustPropensity>70&&!/review|trusted|proof|guarantee|secure/i.test(s.message)).length},{label:"Low perceived differentiation",count:agents.filter(a=>a.noveltySeeking<30&&!/unique|new|different|first/i.test(s.message)).length}].sort((a,b)=>b.count-a.count);
     return {id:s.id,label:s.label,price:s.price,message:s.message,intentIndex,uncertainty:[Math.max(0,intentIndex-7),Math.min(100,intentIndex+7)] as [number,number],segmentBreakdown:segments,objections,interactionLift,summary:`In this synthetic ${profile.name} scenario, the ${s.label.toLowerCase()} configuration produced an intent index of ${intentIndex}/100. This is a model signal, not a measured purchase probability. The largest simulated friction is ${objections[0].label.toLowerCase()}.`};
   });
-  const lead=scenarios[0];
   const updated=agents.map(a=>{const ownIntent=scoreAgent(a,input.scenarios[0],input);return {...a,memory:{exposures:a.memory.exposures+1,lastIntent:Math.round(ownIntent),learnedAffinity:clamp(a.memory.learnedAffinity+(ownIntent-50)*.08,-30,30),lastSeenAt:new Date().toISOString(),notes:[...a.memory.notes.slice(-2),`Exposure ${a.memory.exposures+1}: ${input.product} scenario`]}};});
   const ageBands=ageLabels.map(label=>({label,count:agents.filter(a=>a.ageBand===label).length}));
   return {id:crypto.randomUUID(),createdAt:new Date().toISOString(),country:input.country,countryName:profile.name,language:input.language,population:{generated:agents.length,urban:agents.filter(a=>a.residence==="Urban").length,rural:agents.filter(a=>a.residence==="Rural").length,ageBands,gender:counts(agents,a=>a.gender),income:counts(agents,a=>a.income)},cohortId:input.seed,agents:updated,scenarios,caveats:["Country profiles are transparent illustrative priors for prototype testing, not official census estimates or representative sampling frames.","Agents are generated synthetic records. They do not correspond to real people.","Intent indices and scenario differences are hypotheses, not forecasts or measured purchase probabilities.","Social influence is a simplified ring-network interaction model; it is not validated human behaviour.","Agent memory is persisted by this browser when you save a run; it is not shared across devices or users."]};
