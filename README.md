@@ -6,6 +6,22 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v1.6 — Multi-Agent Research Collaboration
+
+- Replaces the single-call council path with five independent, role-prompted specialist model calls: Research Director, Skeptic, Evidence Auditor, Behavioural Scientist and Experiment Designer.
+- Runs the five specialists in parallel before sharing their contributions with a separate Research Coordinator.
+- The coordinator performs a second orchestration round: identifies disagreements, records positions and resolutions, preserves open questions, and creates an evidence ledger.
+- Every returned source ID is filtered against evidence identifiers actually supplied in the request; unsupported claims cannot acquire invented source references.
+- Displays specialist contributions, round summaries, disagreements, evidence status and coordinator synthesis in the research workspace.
+- Keeps a deterministic collaboration-shaped fallback when the AI Gateway is absent or any specialist/coordinator call fails. It explicitly states that no live debate took place.
+- Includes historical adaptive memory as continuity context while preventing repeated generated notes from being treated as independent corroboration.
+
+### Cost, limits and safeguards
+
+AI mode makes six model requests per collaboration run (five specialist calls plus one coordinator call). Provider charges depend on the configured model and token usage. The five role prompts are distinct, but the agents are not independent human experts or independently trained models. The coordinator is another model call, not an external fact-checker. This is a bounded two-round workflow; agents do not autonomously browse the web, call external tools, contact participants or execute experiments.
+
+Before enabling a paid Gateway key on a public deployment, add authentication, durable rate limiting, per-user quotas and usage visibility. The endpoint currently lacks those production controls. Treat all synthetic simulation outputs as hypotheses, not real-world demand evidence or validated forecasts.
+
 ## v1.5 — Adaptive Agent Memory & Collective Intelligence
 
 - Persist the latest 30 research council reports and up to 50 compact memory records in browser-local storage.
@@ -164,6 +180,7 @@ Import this repository into Vercel. Configure server-side environment variables 
 - [ ] Calibrated trait distributions and validation against real-world holdout studies
 - [ ] Managed database, authentication and cross-device/team workspaces
 - [x] Browser-local adaptive agent memory, report feedback and collective pattern summaries
+- [x] Bounded multi-agent research collaboration with specialist calls, coordinator critique, disagreement tracking and evidence ledger
 - [x] Heuristic multi-round agent conversations and behavioural adaptation
 - [x] Dynamic network rewiring and group consensus indicators
 - [x] Cross-country what-if simulation and Monte Carlo model-sensitivity intervals
