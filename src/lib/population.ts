@@ -20,19 +20,21 @@ export type PopulationResult = {
   population: { generated: number; urban: number; rural: number; ageBands: { label: string; count: number }[]; gender: { label: string; count: number }[]; income: { label: string; count: number }[] };
   cohortId: string; agents: SyntheticAgent[]; scenarios: PopulationScenarioResult[]; caveats: string[];
 };
-type Profile = { name: string; languages: string[]; age: [number, number, number, number]; female: number; urban: number; income: [number, number, number] };
+type Profile = { name: string; languages: string[]; age: [number, number, number, number]; female: number; urban: number; income: [number, number, number]; priceFactor: number };
 export const COUNTRY_PROFILES: Record<CountryCode, Profile> = {
-  IN: { name: "India", languages: ["English", "Hindi", "Marathi", "Bengali", "Tamil", "Telugu"], age: [27, 25, 31, 17], female: 49, urban: 37, income: [35, 50, 15] },
-  US: { name: "United States", languages: ["English", "Spanish"], age: [22, 22, 27, 29], female: 50.5, urban: 83, income: [28, 47, 25] },
-  GB: { name: "United Kingdom", languages: ["English", "Welsh", "Polish"], age: [21, 23, 27, 29], female: 50.5, urban: 84, income: [25, 50, 25] },
-  DE: { name: "Germany", languages: ["German", "English", "Turkish"], age: [19, 21, 28, 32], female: 50.5, urban: 78, income: [22, 53, 25] },
-  JP: { name: "Japan", languages: ["Japanese", "English"], age: [15, 16, 25, 44], female: 51, urban: 92, income: [25, 50, 25] },
-  BR: { name: "Brazil", languages: ["Portuguese", "English", "Spanish"], age: [23, 24, 29, 24], female: 51, urban: 87, income: [35, 50, 15] },
+  IN: { name: "India", languages: ["English", "Hindi", "Marathi", "Bengali", "Tamil", "Telugu"], age: [27, 25, 31, 17], female: 49, urban: 37, income: [35, 50, 15], priceFactor: 0.35 },
+  US: { name: "United States", languages: ["English", "Spanish"], age: [22, 22, 27, 29], female: 50.5, urban: 83, income: [28, 47, 25], priceFactor: 2.2 },
+  GB: { name: "United Kingdom", languages: ["English", "Welsh", "Polish"], age: [21, 23, 27, 29], female: 50.5, urban: 84, income: [25, 50, 25], priceFactor: 2.4 },
+  DE: { name: "Germany", languages: ["German", "English", "Turkish"], age: [19, 21, 28, 32], female: 50.5, urban: 78, income: [22, 53, 25], priceFactor: 2.1 },
+  JP: { name: "Japan", languages: ["Japanese", "English"], age: [15, 16, 25, 44], female: 51, urban: 92, income: [25, 50, 25], priceFactor: 0.025 },
+  BR: { name: "Brazil", languages: ["Portuguese", "English", "Spanish"], age: [23, 24, 29, 24], female: 51, urban: 87, income: [35, 50, 15], priceFactor: 0.45 },
 };
 // These are transparent starter priors for product prototyping, not official census estimates.
 function rng(seed: string) { let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); let s = h >>> 0; return () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function pick<T>(items: T[], weights: number[], random: () => number): T { const n = random() * weights.reduce((a,b)=>a+b,0); let sum=0; for(let i=0;i<items.length;i++){sum+=weights[i]; if(n<=sum)return items[i];} return items[items.length-1]; }
 const ageLabels = ["18–24", "25–34", "35–54", "55+"];
+const ageRanges: Record<string,[number,number]> = {"18–24":[18,24],"25–34":[25,34],"35–54":[35,54],"55+":[55,78]};
+function audienceAgeBounds(audience:string):[number,number]{const match=audience.match(/(\d{1,2})\s*(?:-|–|to)\s*(\d{1,2})/i);if(!match)return [18,78];const low=Math.max(18,Math.min(78,Number(match[1])));const high=Math.max(low,Math.min(78,Number(match[2])));return [low,high];}
 function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] {
   const random = rng(input.seed + "|" + input.country);
   const old = new Map<string, SyntheticAgent>((input.previousAgents || []).map(a => [a.id, a] as const));
@@ -56,13 +58,14 @@ function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] 
   });
 }
 function clamp(n:number, lo=0, hi=100){return Math.max(lo,Math.min(hi,n));}
+function inputPriceFactor(country:CountryCode){return COUNTRY_PROFILES[country].priceFactor;}
 function scoreAgent(agent:SyntheticAgent, scenario:ScenarioInput, input:PopulationInput) {
   const text = (input.product+" "+input.description+" "+scenario.message).toLowerCase();
   const valueCue = /affordable|value|save|budget|low.price|discount/.test(text) ? 9 : 0;
   const trustCue = /certif|guarantee|review|trusted|proof|secure|transparent/.test(text) ? 8 : 0;
   const convenienceCue = /fast|easy|delivery|nearby|simple|instant/.test(text) ? 6 : 0;
   const innovationCue = /new|unique|first|innovative|different/.test(text) ? 6 : 0;
-  const affordability = 100 - scenario.price * (agent.priceSensitivity / 100) * 2.1;
+  const affordability = clamp(100 - scenario.price * inputPriceFactor(input.country) * (agent.priceSensitivity / 100));
   const baseline = 30 + affordability*.24 + agent.noveltySeeking*.13 + agent.trustPropensity*.1 + agent.qualityOrientation*.12 + valueCue + trustCue*(agent.trustPropensity/100) + convenienceCue + innovationCue*(agent.noveltySeeking/100) + agent.memory.learnedAffinity*.12;
   const incomeAdjust = agent.income === "Lower" ? -8 : agent.income === "Higher" ? 6 : 0;
   return clamp(baseline + incomeAdjust);
