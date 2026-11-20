@@ -12,6 +12,7 @@ import CalibrationLab from "@/components/CalibrationLab";
 import AdvancedSimulationIntelligence from "@/components/AdvancedSimulationIntelligence";
 import AutonomousResearchAgents from "@/components/AutonomousResearchAgents";
 import ResearchPlatform from "@/components/ResearchPlatform";
+import ResearchExecutionStudio from "@/components/ResearchExecutionStudio";
 
 const countries: {code:CountryCode;name:string}[]=[{code:"IN",name:"India"},{code:"US",name:"United States"},{code:"GB",name:"United Kingdom"},{code:"DE",name:"Germany"},{code:"JP",name:"Japan"},{code:"BR",name:"Brazil"}];
 const currency:Record<CountryCode,string>={IN:"INR",US:"USD",GB:"GBP",DE:"EUR",JP:"JPY",BR:"BRL"};
@@ -99,6 +100,7 @@ export default function Home(){
   <CognitiveLab />
   <AdvancedSimulationIntelligence />
   <AutonomousResearchAgents />
+  <ResearchExecutionStudio />
   <LLMAgentLab />
   <ResearchIntelligence />
   <BehaviouralValidation />
