@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {Activity,BarChart3,ClipboardCheck,Download,FlaskConical,Plus,ShieldAlert,Trash2} from "lucide-react";
+import {BarChart3,ClipboardCheck,Download,FlaskConical,Plus,ShieldAlert,Trash2} from "lucide-react";
 import {analyzeTwoArm,createExperimentReport,experimentQuality,requiredSamplePerArm,type ExperimentPlan,type TwoArmAnalysis} from "@/lib/experiment-validation";
 const KEY="synthora-v18-experiment-registry";
 const blank=():ExperimentPlan=>({id:crypto.randomUUID(),title:"New controlled experiment",question:"",hypothesis:"",control:"Current experience / baseline",treatment:"Proposed change",primaryMetric:"Conversion or completion rate",market:"India",population:"",allocation:"Random 1:1 assignment",plannedPerArm:100,baselineRate:0.2,minimumDetectableEffect:0.05,durationDays:14,successRule:"Two-sided p < 0.05 and effect meets the predeclared practical threshold.",preregisteredAt:"",createdAt:new Date().toISOString(),status:"planned",sourceUrl:"",sourceDate:"",sourceMethod:"",simulationEstimate:null,observedControl:null,observedTreatment:null,controlN:null,treatmentN:null,notes:""});
