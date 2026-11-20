@@ -34,7 +34,7 @@ function rng(seed: string) { let h = 2166136261; for (const c of seed) h = Math.
 function pick<T>(items: T[], weights: number[], random: () => number): T { const n = random() * weights.reduce((a,b)=>a+b,0); let sum=0; for(let i=0;i<items.length;i++){sum+=weights[i]; if(n<=sum)return items[i];} return items[items.length-1]; }
 const ageLabels = ["18–24", "25–34", "35–54", "55+"];
 function makeAgents(input: PopulationInput, profile: Profile): SyntheticAgent[] {
-  const random = rng(input.seed + "|" + input.country + "|" + input.sampleSize);
+  const random = rng(input.seed + "|" + input.country);
   const old = new Map<string, SyntheticAgent>((input.previousAgents || []).map(a => [a.id, a] as const));
   return Array.from({length: input.sampleSize}, (_, i) => {
     const id = input.seed + "-agent-" + String(i+1).padStart(5,"0");
@@ -81,7 +81,7 @@ export function runPopulationSimulation(input: PopulationInput): PopulationResul
     return {id:s.id,label:s.label,price:s.price,message:s.message,intentIndex,uncertainty:[Math.max(0,intentIndex-7),Math.min(100,intentIndex+7)] as [number,number],segmentBreakdown:segments,objections,interactionLift,summary:`In this synthetic ${profile.name} scenario, the ${s.label.toLowerCase()} configuration produced an intent index of ${intentIndex}/100. This is a model signal, not a measured purchase probability. The largest simulated friction is ${objections[0].label.toLowerCase()}.`};
   });
   const lead=scenarios[0];
-  const updated=agents.map((a,i)=>({...a,memory:{exposures:a.memory.exposures+1,lastIntent:lead.intentIndex,learnedAffinity:clamp(a.memory.learnedAffinity+(scoreAgent(a,input.scenarios[0],input)-50)*.08,-30,30),lastSeenAt:new Date().toISOString(),notes:[...a.memory.notes.slice(-2),`Exposure ${a.memory.exposures+1}: ${input.product} scenario`]}}));
+  const updated=agents.map(a=>{const ownIntent=scoreAgent(a,input.scenarios[0],input);return {...a,memory:{exposures:a.memory.exposures+1,lastIntent:Math.round(ownIntent),learnedAffinity:clamp(a.memory.learnedAffinity+(ownIntent-50)*.08,-30,30),lastSeenAt:new Date().toISOString(),notes:[...a.memory.notes.slice(-2),`Exposure ${a.memory.exposures+1}: ${input.product} scenario`]}};});
   const ageBands=ageLabels.map(label=>({label,count:agents.filter(a=>a.ageBand===label).length}));
   return {id:crypto.randomUUID(),createdAt:new Date().toISOString(),country:input.country,countryName:profile.name,language:input.language,population:{generated:agents.length,urban:agents.filter(a=>a.residence==="Urban").length,rural:agents.filter(a=>a.residence==="Rural").length,ageBands,gender:counts(agents,a=>a.gender),income:counts(agents,a=>a.income)},cohortId:input.seed,agents:updated,scenarios,caveats:["Country profiles are transparent illustrative priors for prototype testing, not official census estimates or representative sampling frames.","Agents are generated synthetic records. They do not correspond to real people.","Intent indices and scenario differences are hypotheses, not forecasts or measured purchase probabilities.","Social influence is a simplified ring-network interaction model; it is not validated human behaviour.","Agent memory is persisted by this browser when you save a run; it is not shared across devices or users."]};
 }
