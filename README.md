@@ -259,7 +259,7 @@ SYNTHORA v2.0 evolves the project from a set of research dashboards into a coord
 ### Research Control Plane
 
 - Structured research protocol: question, hypothesis, population, geography, outcomes, methodology, sampling, inclusion/exclusion criteria, analysis plan and limitations.
-- Versioned protocol records with workflow stages from discovery through review and archive.
+- Versioned protocol records with browser-local snapshots, up to 20 saved versions, and workflow stages from discovery through review and archive.
 - Critical and recommended quality gates that expose missing design information before a researcher proceeds.
 - Ethics-review and data-sensitivity checks; these are workflow warnings, not ethics approval or legal compliance certification.
 - Evidence ledger for peer-reviewed literature, official statistics, preprints, technical reports and datasets.
