@@ -14,3 +14,8 @@ button, input, select, textarea { font: inherit; }
 .panel { background: linear-gradient(145deg, rgba(22,27,37,.92), rgba(13,17,25,.96)); border: 1px solid rgba(148,163,184,.13); }
 .muted { color: #8993a4; }
 .eyebrow { color: #7ce0bd; font-size: 10px; letter-spacing: .2em; font-weight: 700; text-transform: uppercase; }
+
+.field { width:100%; border:1px solid rgba(148,163,184,.15); border-radius:9px; background:rgba(0,0,0,.22); color:#edf0f5; padding:11px 12px; margin-bottom:14px; font-size:12px; line-height:1.5; outline:none; transition:border-color .15s ease,background .15s ease; }
+.field:focus { border-color:rgba(124,224,189,.65); background:rgba(0,0,0,.34); }
+.field::placeholder { color:#647084; }
+.field option { background:#111722; color:#edf0f5; }
