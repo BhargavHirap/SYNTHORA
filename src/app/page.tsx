@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { Activity, ArrowRight, BarChart3, BrainCircuit, Clock3, Globe2, Layers3, Loader2, Plus, Radar, ShieldCheck, Trash2, Users, X } from "lucide-react";
 import { COUNTRY_PROFILES, type CountryCode, type PopulationInput, type PopulationResult, type ScenarioInput } from "@/lib/population";
 import { loadExperiments, saveExperiment, deleteExperiment } from "@/lib/experiment-store";
@@ -82,7 +83,7 @@ export default function Home(){
   <footer className="mt-12 flex flex-col justify-between gap-3 border-t border-white/[.08] pt-6 text-[10px] text-slate-600 sm:flex-row"><span>© 2026 SYNTHORA · POPULATION INTELLIGENCE ENGINE</span><span>Research prototype · Synthetic scenarios are not real-world evidence</span></footer>
  </div></main>;
 }
-function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="mb-1 block"><span className="mb-2 block text-[11px] text-slate-400">{label}</span>{children}</label>}
+function Field({label,children}:{label:string;children:ReactNode}){return <label className="mb-1 block"><span className="mb-2 block text-[11px] text-slate-400">{label}</span>{children}</label>}
 function Metric({label,value,detail,icon:Icon}:{label:string;value:string;detail:string;icon:typeof Activity}){return <div className="panel rounded-2xl p-5"><div className="flex items-center justify-between"><span className="muted text-xs">{label}</span><Icon size={16} className="text-emerald-300"/></div><div className="mt-4 text-3xl font-semibold tracking-tight">{value}</div><div className="muted mt-2 text-[10px]">{detail}</div></div>}
 function Panel({title,icon,children}:{title:string;icon:React.ReactNode;children:React.ReactNode}){return <div className="panel rounded-2xl p-5"><div className="mb-5 flex items-center gap-2 text-sm font-medium text-slate-200">{icon}{title}</div>{children}</div>}
 function Bars({rows}:{rows:{label:string;value:number;total:number}[]}){return <div className="space-y-4">{rows.map(r=><div key={r.label}><div className="mb-2 flex justify-between text-[11px]"><span className="text-slate-400">{r.label}</span><span>{Math.round(r.value/r.total*100)}% · {r.value}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-emerald-300" style={{width:`${r.value/r.total*100}%`}}/></div></div>)}</div>}
