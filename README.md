@@ -140,3 +140,18 @@ Import this repository into Vercel. Configure server-side environment variables 
 ## License
 
 Proprietary project. All rights reserved.
+
+
+## v0.8–v1.2 — Research platform foundation
+
+- v0.8: benchmark-driven demographic calibration lab using iterative proportional fitting (raking), source/year metadata, convergence and residual diagnostics, effective sample size, and exportable agent weights. Calibration is separate from raw synthetic agents and requires user-supplied documented marginals.
+- v0.9: persistent agent-memory API for saving/retrieving exposure and decision memory against a cloud project.
+- v1.0: Supabase email/password authentication, private workspace/project and experiment APIs, and RLS-backed private storage schema.
+- v1.1: versioned POST /api/v1/simulations endpoint with workspace API keys stored as SHA-256 hashes, a 60 requests/minute per-key limit, and 50–2,500 agent synchronous runs.
+- v1.2: enterprise overview of experiment volume, market coverage, agent counts and baseline indices, explicitly descriptive of synthetic runs.
+
+### Cloud setup required
+
+Set Vercel environment variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, and SUPABASE_SERVICE_ROLE_KEY (server-only). Review and apply supabase/schema.sql to the intended Supabase project, then configure Supabase Auth email confirmation and redirect URLs. The repository does not activate a Supabase project or apply the schema automatically. Never expose the service-role key in browser code.
+
+The first API release is synchronous and capped; durable background queues, billing, enterprise SSO, team invitation workflows and audited storage upload UX remain future hardening tasks.
