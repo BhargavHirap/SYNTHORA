@@ -6,6 +6,17 @@ SYNTHORA is a research workspace for exploring how explicitly synthetic populati
 
 > Research tool, not a crystal ball. Synthetic agents are not real people. Model outputs are hypotheses—not representative survey results, causal evidence, or guaranteed forecasts.
 
+## v1.3 — Advanced Simulation Intelligence
+
+- Analyse saved cognitive simulation runs across selected markets without making additional LLM calls.
+- Compare simulated support, Monte Carlo sensitivity interval width, discussion-round stability, opinion momentum and polarization.
+- Produce a cross-market robustness view with strongest and most model-sensitive markets, support spread and a conservative synthetic support floor.
+- Generate market-level research watchlists from transparent threshold rules (wide model interval, undecided share, polarization, round instability and low network connectivity).
+- Export a standalone JSON intelligence report linked to the source run and seed.
+- Keep interpretation guardrails visible: all metrics describe model behaviour and sensitivity, not real-world population estimates, causal effects or validated forecasts.
+
+The intelligence layer is deterministic post-processing of a saved v0.3 cognitive run. It does not retrain a model, add evidence, or improve the validity of the underlying simulation. Its risk flags are prompts for further investigation, not automatic go/no-go decisions. No additional provider usage is incurred by analysis or export.
+
 ## v0.7 — Global Population Data Foundation
 
 - Expand the public World Bank evidence pack from five to twelve indicators across six markets: India, United States, United Kingdom, Germany, Japan and Brazil.
