@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     assertSameOrigin(request);
     const body = await request.json() as { result?: PopulationResult; input?: PopulationInput };
     const result = body.result;
-    if (!result || typeof result !== "object" || !result.id || !Array.isArray(result.agents) || !Array.isArray(result.scenarios)) {
+    if (!result || typeof result !== "object" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.id) || !Array.isArray(result.agents) || !Array.isArray(result.scenarios)) {
       return NextResponse.json({ error: "A valid population simulation result is required." }, { status: 400 });
     }
     if (jsonSize(body) > 5_000_000) {
@@ -54,12 +54,13 @@ export async function POST(request: Request) {
       ON CONFLICT (owner_id) DO UPDATE SET updated_at = now()
       RETURNING id
     `;
-    const runId = randomUUID();
+    const runId = result.id;
     const cohortSeed = String(result.cohortId || result.id);
     let seedHash = 2166136261;
     for (const character of cohortSeed + "|" + result.country) seedHash = Math.imul(seedHash ^ character.charCodeAt(0), 16777619);
     const randomSeed = String(seedHash >>> 0);
     const input = body.input || {};
+    const parameterSnapshot = Object.fromEntries(Object.entries(input).filter(([key]) => key !== "previousAgents"));
     const manifest = {
       schema: "synthora.reproducibility-manifest.v2",
       runId,
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
       randomSeed,
       seedSource: "cohortId + country",
       randomGenerator: "FNV-1a 32-bit seed + Mulberry32",
-      parameters: input,
+      parameters: parameterSnapshot,
       country: result.country,
       countryProfile: result.countryName,
       populationSize: result.population?.generated ?? result.agents.length,
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
       ) VALUES (
         ${runId}, ${project.id}, ${"Population simulation · " + result.countryName},
         'completed', 'synthora-population-v0.7', ${process.env.VERCEL_GIT_COMMIT_SHA || null},
-        ${randomSeed}, ${JSON.stringify(input)}::jsonb,
+        ${randomSeed}, ${JSON.stringify(parameterSnapshot)}::jsonb,
         ${JSON.stringify({ country: result.country, population: result.population })}::jsonb,
         ${JSON.stringify({ agentCount: result.agents.length, memoryPersisted: true })}::jsonb,
         ${JSON.stringify(result.scenarios)}::jsonb,
