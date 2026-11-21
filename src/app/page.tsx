@@ -57,7 +57,7 @@ export default function Home(){
    const payload:PopulationInput={product,description,audience,country,language,sampleSize,seed,scenarios,...(remembered.length?{previousAgents:remembered}:{})};
    const response=await fetch("/api/population",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    const data=await response.json();if(!response.ok)throw new Error(data.error||"Population run failed.");
-   await saveExperiment(data);setResult(data);setTab("overview");setRuns(await loadExperiments());
+   await saveExperiment(data,payload);setResult(data);setTab("overview");setRuns(await loadExperiments());
   }catch(e){setError(e instanceof Error?e.message:"Unexpected error while running the engine.");}
   finally{setBusy(false);}
  }
