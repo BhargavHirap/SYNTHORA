@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { assertSameOrigin, getBrowserOwnerId, getDatabase } from "@/lib/neon";
 import type { PopulationInput, PopulationResult } from "@/lib/population";
 
