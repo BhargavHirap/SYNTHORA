@@ -35,6 +35,7 @@ export default function Home(){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [tab,setTab]=useState<"overview"|"agents"|"compare"|"memory">("overview");
+ const [activeModule,setActiveModule]=useState("population");
  const [compareRunId,setCompareRunId]=useState("");
  const [storageReady,setStorageReady]=useState(false);
  useEffect(()=>{loadExperiments().then(setRuns).catch(()=>setError("Browser storage is unavailable.")).finally(()=>setStorageReady(true));},[]);
@@ -67,8 +68,11 @@ export default function Home(){
 
  return <main className="min-h-screen bg-[#080b10] text-slate-100"><div className="grid-noise pointer-events-none fixed inset-x-0 top-0 h-[500px]"/><div className="relative mx-auto max-w-[1480px] px-4 pb-16 md:px-8">
   <header className="flex h-[76px] items-center justify-between border-b border-white/[.08]"><a href="#" className="flex items-center gap-3 no-underline"><div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-300/10"><Radar size={21} className="text-emerald-300"/></div><div><div className="text-[15px] font-bold tracking-[.24em]">SYNTHORA</div><div className="text-[9px] tracking-[.2em] text-slate-500">SCIENTIFIC INTELLIGENCE PLATFORM</div></div></a><div className="hidden items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/[.06] px-3 py-2 text-[10px] tracking-wider text-emerald-200 md:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300"/> ENGINE v0.7 · GLOBAL DATA CONTEXT</div><button onClick={()=>{setResult(null);setScenarios(starter());}} className="rounded-lg border border-white/10 px-3 py-2 text-xs hover:border-emerald-300/40">New experiment <Plus size={13} className="ml-1 inline"/></button></header>
+  <nav aria-label="SYNTHORA workspaces" className="sticky top-0 z-30 -mx-4 mt-0 border-b border-white/[.08] bg-[#080b10]/95 px-4 py-3 backdrop-blur-xl md:-mx-8 md:px-8"><div className="mx-auto flex max-w-full gap-2 overflow-x-auto pb-1">{[
+   ["population","Population"],["cognitive","Cognitive lab"],["agents","AI agents"],["advanced","Advanced simulation"],["research","Research intelligence"],["protocol","Research protocol"],["execution","Execution studio"],["validation","Validation"],["behaviour","Behavioural lab"],["calibration","Calibration"],["benchmarks","Benchmarks"],["platform","Research platform"],["history","Experiment history"]
+  ].map(([id,label])=><button key={id} onClick={()=>setActiveModule(id)} aria-current={activeModule===id?"page":undefined} className={`shrink-0 rounded-lg border px-3.5 py-2 text-[11px] font-medium transition ${activeModule===id?"border-emerald-300/40 bg-emerald-300/10 text-emerald-100":"border-white/[.08] bg-white/[.02] text-slate-400 hover:border-white/20 hover:text-white"}`}>{label}</button>)}</div></nav>
   <section className="grid gap-8 pb-8 pt-11 lg:grid-cols-[1.2fr_.8fr] lg:items-end"><div><div className="eyebrow mb-4 flex items-center gap-2"><Globe2 size={13}/> Multi-market synthetic research</div><h1 className="max-w-4xl text-4xl font-semibold leading-[1.04] tracking-[-.05em] md:text-6xl">Model populations.<br/><span className="text-emerald-300">Explore what moves them.</span></h1><p className="mt-5 max-w-2xl text-sm leading-7 text-slate-400">Generate synthetic cohorts with demographic priors, individual behavioural traits, persistent browser memory and network effects. Compare multiple scenario variants against the same population.</p></div><div className="panel rounded-2xl p-5"><div className="flex items-center justify-between text-[10px] tracking-widest text-slate-400"><span>ENGINE CAPABILITIES</span><span className="text-emerald-200">V0.7</span></div><div className="mt-5 grid grid-cols-2 gap-4">{[["06","Country profiles"],["2,500","Agents per cohort"],["06","Scenario variants"],["∞","Cloud + offline history"]].map(([v,l])=><div key={l}><div className="text-2xl font-semibold">{v}</div><div className="muted mt-1 text-[10px]">{l}</div></div>)}</div><p className="mt-4 text-[10px] text-slate-500">Recent runs sync to your private cloud archive; offline saves stay in this browser.</p></div></section>
-  <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
+  {activeModule==="population" && <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
    <aside className="space-y-4"><div className="panel rounded-2xl p-5"><div className="eyebrow">01 / Experiment setup</div><h2 className="mt-2 text-lg font-semibold">Population definition</h2>
     <Field label="Product / concept"><input value={product} onChange={e=>setProduct(e.target.value)} className="field" maxLength={120}/></Field>
     <Field label="Description"><textarea value={description} onChange={e=>setDescription(e.target.value)} className="field min-h-20" maxLength={700}/></Field>
@@ -98,20 +102,18 @@ export default function Home(){
     <div className="rounded-2xl border border-amber-300/15 bg-amber-300/[.035] p-5"><div className="flex items-center gap-2 text-xs font-semibold text-amber-100"><ShieldCheck size={15}/> Limitations & validation</div><ul className="mt-3 space-y-2">{current.caveats.map(c=><li key={c} className="text-[11px] leading-5 text-amber-100/65">• {c}</li>)}</ul></div>
    </>}
    </section>
-  </div>
-  <section className="mt-10"><div className="mb-4 flex items-center justify-between"><div><div className="eyebrow">04 / Research archive</div><h2 className="mt-2 text-lg font-semibold">Saved experiments</h2></div><span className="text-[10px] text-slate-500">{storageReady?runs.length:"…"} saved runs</span></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{runs.slice(0,6).map(r=><div key={r.id} className="panel rounded-xl p-4"><div className="flex items-start justify-between"><div><div className="text-sm font-medium">{r.countryName} · {fmt(r.population.generated)} agents</div><div className="mt-1 text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleString()}</div></div><button onClick={()=>remove(r.id)} aria-label="Delete saved experiment" className="text-slate-600 hover:text-rose-300"><Trash2 size={14}/></button></div><div className="mt-3 flex items-center justify-between"><span className="text-[11px] text-slate-400">{r.scenarios.length} scenarios</span><button onClick={()=>{setResult(r);setTab("overview");}} className="text-[11px] text-emerald-200">Open run <ArrowRight size={12} className="ml-1 inline"/></button></div></div>)}</div></section>
-  <ResearchControlPlane />
-  <CognitiveLab />
-  <AdvancedSimulationIntelligence />
-  <AutonomousResearchAgents />
-  <ResearchExecutionStudio />
-  <ExperimentalValidationStudio />
-  <ScientificBenchmarkStudio />
-  <LLMAgentLab />
-  <ResearchIntelligence />
-  <BehaviouralValidation />
-  <CalibrationLab runs={runs} />
-  <ResearchPlatform runs={runs} />
+  </div>}
+  {activeModule==="history" && <section className="mt-10"><div className="mb-4 flex items-center justify-between"><div><div className="eyebrow">Research archive</div><h2 className="mt-2 text-lg font-semibold">Saved experiments</h2></div><span className="text-[10px] text-slate-500">{storageReady?runs.length:"…"} saved runs</span></div><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{runs.slice(0,6).map(r=><div key={r.id} className="panel rounded-xl p-4"><div className="flex items-start justify-between"><div><div className="text-sm font-medium">{r.countryName} · {fmt(r.population.generated)} agents</div><div className="mt-1 text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleString()}</div></div><button onClick={()=>remove(r.id)} aria-label="Delete saved experiment" className="text-slate-600 hover:text-rose-300"><Trash2 size={14}/></button></div><div className="mt-3 flex items-center justify-between"><span className="text-[11px] text-slate-400">{r.scenarios.length} scenarios</span><button onClick={()=>{setResult(r);setTab("overview");}} className="text-[11px] text-emerald-200">Open run <ArrowRight size={12} className="ml-1 inline"/></button></div></div>)}</div></section>}
+  {activeModule==="protocol" && <ResearchControlPlane />}
+  {activeModule==="cognitive" && <CognitiveLab />}
+  {activeModule==="advanced" && <AdvancedSimulationIntelligence />}
+  {activeModule==="agents" && <><AutonomousResearchAgents /><LLMAgentLab /></>}
+  {activeModule==="execution" && <ResearchExecutionStudio />}
+  {activeModule==="validation" && <><ExperimentalValidationStudio /><ScientificBenchmarkStudio /></>}
+  {activeModule==="research" && <ResearchIntelligence />}
+  {activeModule==="behaviour" && <BehaviouralValidation />}
+  {activeModule==="calibration" && <CalibrationLab runs={runs} />}
+  {activeModule==="platform" && <ResearchPlatform runs={runs} />}
   <footer className="mt-12 flex flex-col justify-between gap-3 border-t border-white/[.08] pt-6 text-[10px] text-slate-600 sm:flex-row"><span>© 2026 SYNTHORA · POPULATION INTELLIGENCE ENGINE</span><span>Research prototype · Synthetic scenarios are not real-world evidence</span></footer>
  </div></main>;
 }
