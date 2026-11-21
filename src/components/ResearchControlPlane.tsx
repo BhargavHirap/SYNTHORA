@@ -28,17 +28,35 @@ export default function ResearchControlPlane() {
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState("");
   const [showAllChecks, setShowAllChecks] = useState(false);
+  const [cloudReady, setCloudReady] = useState(false);
+  const [cloudStatus, setCloudStatus] = useState<"loading"|"saved"|"saving"|"offline">("loading");
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Workspace;
-        if (parsed?.protocol?.id && Array.isArray(parsed.evidence) && Array.isArray(parsed.audit)) setWorkspace({ ...parsed, versions: Array.isArray(parsed.versions) ? parsed.versions : [] });
-        else setWorkspace(blankWorkspace());
-      } else setWorkspace(blankWorkspace());
-    } catch { setWorkspace(blankWorkspace()); setNotice("Saved workspace could not be read; a fresh local workspace was opened."); }
-    setReady(true);
+    let cancelled = false;
+    (async () => {
+      let local: Workspace | null = null;
+      try {
+        const raw = localStorage.getItem(STORAGE);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Workspace;
+          if (parsed?.protocol?.id && Array.isArray(parsed.evidence) && Array.isArray(parsed.audit)) local = { ...parsed, versions: Array.isArray(parsed.versions) ? parsed.versions : [] };
+        }
+      } catch { setNotice("Local workspace could not be read; attempting cloud recovery."); }
+      try {
+        const response = await fetch("/api/research/workspace", { cache: "no-store" });
+        if (!response.ok) throw new Error("Cloud workspace is unavailable.");
+        const remote = await response.json() as Partial<Workspace> & { protocol?: ResearchProtocol | null; persistence?: string };
+        if (cancelled) return;
+        if (remote.protocol) setWorkspace({ protocol: remote.protocol, evidence: remote.evidence || [], audit: remote.audit || [], versions: remote.versions || [] });
+        else setWorkspace(local || blankWorkspace());
+        setCloudStatus("saved");
+      } catch {
+        if (!cancelled) { setWorkspace(local || blankWorkspace()); setCloudStatus("offline"); setNotice("Cloud sync is unavailable. Changes are being kept in this browser and will retry when connected."); }
+      } finally {
+        if (!cancelled) { setReady(true); setCloudReady(true); }
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -46,6 +64,19 @@ export default function ResearchControlPlane() {
     try { localStorage.setItem(STORAGE, JSON.stringify(workspace)); }
     catch { setNotice("Browser storage is full or unavailable. Export the manifest to keep a copy."); }
   }, [ready, workspace]);
+
+  useEffect(() => {
+    if (!cloudReady || !workspace) return;
+    setCloudStatus("saving");
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch("/api/research/workspace", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ protocol: workspace.protocol, evidence: workspace.evidence }) });
+        if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.error || "Cloud save failed."); }
+        setCloudStatus("saved");
+      } catch { setCloudStatus("offline"); setNotice("Cloud save failed; a local copy is retained in this browser."); }
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [cloudReady, workspace]);
 
   const assessment = useMemo(() => workspace ? assessProtocol(workspace.protocol, workspace.evidence) : null, [workspace]);
   const readiness = useMemo(() => workspace && assessment ? decisionReadiness(workspace.protocol, assessment, workspace.evidence) : null, [workspace, assessment]);
@@ -95,7 +126,7 @@ export default function ResearchControlPlane() {
       </div>
     </div>
 
-    {notice && <div role="status" className="rounded-lg border border-amber-300/20 bg-amber-300/[.05] px-4 py-3 text-xs text-amber-100">{notice}</div>}
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/[.07] bg-white/[.02] px-3 py-2 text-[10px]"><span className="text-slate-400">Research workspace storage</span><span className={cloudStatus==="saved"?"text-emerald-200":cloudStatus==="saving"?"text-amber-200":"text-slate-400"}>{cloudStatus==="saved"?"● Saved to Neon":cloudStatus==="saving"?"◌ Saving to Neon…":cloudStatus==="loading"?"Loading…":"Local copy · cloud unavailable"}</span></div>\n    {notice && <div role="status" className="rounded-lg border border-amber-300/20 bg-amber-300/[.05] px-4 py-3 text-xs text-amber-100">{notice}</div>}
 
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <div className="panel rounded-xl p-4"><div className="text-[10px] uppercase tracking-widest text-slate-500">Protocol completeness</div><div className="mt-2 text-3xl font-semibold">{assessment.score}%</div><div className="mt-1 text-[10px] text-emerald-200">{assessment.grade}</div></div>
