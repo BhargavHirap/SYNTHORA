@@ -82,6 +82,19 @@ export async function POST(request: Request) {
     };
     const manifestHash = createHash("sha256").update(JSON.stringify(manifest)).digest("hex");
 
+    const uniqueAgentIds = new Set(result.agents.map((agent) => agent.id)).size;
+    const scenarioOutputsValid = result.scenarios.every((scenario) =>
+      Number.isFinite(scenario.intentIndex) && scenario.intentIndex >= 0 && scenario.intentIndex <= 100
+    );
+    const populationCountMatches = result.population?.generated === result.agents.length;
+    const integrityChecks = [
+      { key: "unique_agent_ids", label: "Agent identifiers are unique", passed: uniqueAgentIds === result.agents.length },
+      { key: "scenario_bounds", label: "Scenario intent outputs are within 0–100", passed: scenarioOutputsValid },
+      { key: "population_count", label: "Population count matches generated agents", passed: populationCountMatches },
+    ];
+    const integrityPassed = integrityChecks.every((check) => check.passed);
+
+
     await sql`
       INSERT INTO experiment_runs (
         id, project_id, run_name, status, engine_version, git_commit, random_seed,
@@ -99,18 +112,6 @@ export async function POST(request: Request) {
         ${ownerId}, now(), now()
       )
     `;
-    const uniqueAgentIds = new Set(result.agents.map((agent) => agent.id)).size;
-    const scenarioOutputsValid = result.scenarios.every((scenario) =>
-      Number.isFinite(scenario.intentIndex) && scenario.intentIndex >= 0 && scenario.intentIndex <= 100
-    );
-    const populationCountMatches = result.population?.generated === result.agents.length;
-    const integrityChecks = [
-      { key: "unique_agent_ids", label: "Agent identifiers are unique", passed: uniqueAgentIds === result.agents.length },
-      { key: "scenario_bounds", label: "Scenario intent outputs are within 0–100", passed: scenarioOutputsValid },
-      { key: "population_count", label: "Population count matches generated agents", passed: populationCountMatches },
-    ];
-    const integrityPassed = integrityChecks.every((check) => check.passed);
-
     await sql.transaction([
       sql`INSERT INTO population_snapshots (run_id, population, distribution_metadata)
           VALUES (${runId}, ${JSON.stringify(result)}::jsonb,
