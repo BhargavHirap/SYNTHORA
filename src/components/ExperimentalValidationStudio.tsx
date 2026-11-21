@@ -178,7 +178,7 @@ export default function ExperimentalValidationStudio() {
               <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
                 <div className="rounded-lg border border-white/[.07] p-3">95% CI: [{(analysis.confidenceInterval[0] * 100).toFixed(1)}, {(analysis.confidenceInterval[1] * 100).toFixed(1)}] percentage points</div>
                 <div className="rounded-lg border border-white/[.07] p-3">Two-sided p-value: {analysis.pValue.toFixed(4)} {analysis.significantAt05 ? "· below 0.05" : "· not below 0.05"}</div>
-                <div className="rounded-lg border border-white/[.07] p-3">Cohen's h: {analysis.cohensH.toFixed(3)}</div>
+                <div className="rounded-lg border border-white/[.07] p-3">Cohen&apos;s h: {analysis.cohensH.toFixed(3)}</div>
                 <div className="rounded-lg border border-white/[.07] p-3">Relative lift: {analysis.relativeLift === null ? "not defined" : (analysis.relativeLift * 100).toFixed(1) + "%"}</div>
               </div>
               <button onClick={completeAnalysis} className="mt-3 rounded-lg bg-emerald-300 px-4 py-2 text-xs font-semibold text-[#07110e]">Mark analysis complete</button>
