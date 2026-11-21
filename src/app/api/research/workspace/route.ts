@@ -45,6 +45,7 @@ export async function POST(request:Request) {
       INSERT INTO evidence_items(id,project_id,protocol_id,title,publisher,source_url,evidence_class,claim,classification,quality,metadata,created_by)
       VALUES(${x.id}::uuid,${projectId},${protocolId},${String(x.title||"").slice(0,500)},${String(x.publisher||"").slice(0,300)},${String(x.url||"").slice(0,2000)},${String(x.evidenceClass||"other")},${String(x.claim||"").slice(0,5000)},${String(x.supports||"unknown")},${String(x.quality||"unassessed")},${JSON.stringify({publishedDate:x.publishedDate||"",accessDate:x.accessDate||"",notes:x.notes||""})}::jsonb,${ownerId})
       ON CONFLICT(id) DO UPDATE SET protocol_id=EXCLUDED.protocol_id,title=EXCLUDED.title,publisher=EXCLUDED.publisher,source_url=EXCLUDED.source_url,evidence_class=EXCLUDED.evidence_class,claim=EXCLUDED.claim,classification=EXCLUDED.classification,quality=EXCLUDED.quality,metadata=EXCLUDED.metadata
+      WHERE evidence_items.project_id=EXCLUDED.project_id AND evidence_items.created_by=EXCLUDED.created_by
     `);
     await sql.transaction([
       ...ops,
