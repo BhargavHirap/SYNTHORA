@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 type Protocol = { id:string; title:string; question:string; hypothesis:string; domain:string; version:number; [key:string]:unknown };
 type Evidence = { id:string; title:string; publisher:string; url:string; evidenceClass:string; claim:string; supports:string; quality:string; publishedDate?:string; accessDate?:string; notes?:string };
+type WorkspaceRow = { id:string; version?:number; created_at?:string; protocol?:unknown; title?:string; question?:string; hypothesis?:string; domain?:string; publisher?:string; source_url?:string; evidence_class?:string; claim?:string; classification?:string; quality?:string; metadata?:Record<string,string>|null; actor_id?:string; action?:string; detail?:unknown };
 
 async function ownedProject(ownerId:string) {
   const sql=getDatabase();
@@ -22,9 +23,16 @@ export async function GET() {
       sql`SELECT id,title,publisher,source_url,evidence_class,claim,classification,quality,metadata,created_at FROM evidence_items WHERE project_id=${projectId} ORDER BY created_at DESC LIMIT 500`,
       sql`SELECT id,actor_id,action,detail,created_at FROM research_audit_events WHERE project_id=${projectId} ORDER BY created_at DESC LIMIT 100`
     ]);
-    const latest=protocols[0] as Record<string,unknown>|undefined;
-    const protocol=latest ? {...(latest.protocol as object),id:String(latest.id),version:Number(latest.version),title:String(latest.title),question:String(latest.question),hypothesis:String(latest.hypothesis),domain:String(latest.domain)} : null;
-    return NextResponse.json({protocol,versions:protocols.map((r:any)=>({version:r.version,savedAt:r.created_at,protocol:r.protocol})),evidence:evidence.map((r:any)=>({id:r.id,title:r.title,publisher:r.publisher,url:r.source_url,evidenceClass:r.evidence_class,claim:r.claim,supports:r.classification,quality:r.quality,publishedDate:r.metadata?.publishedDate||"",accessDate:r.metadata?.accessDate||"",notes:r.metadata?.notes||""})),audit:audit.map((r:any)=>({id:r.id,actor:r.actor_id,action:r.action,detail:typeof r.detail==="string"?r.detail:JSON.stringify(r.detail),at:r.created_at})),persistence:"neon"},{headers:{"Cache-Control":"no-store"}});
+    const latest=protocols[0] as WorkspaceRow|undefined;
+    const protocolData=latest?.protocol && typeof latest.protocol==="object" ? latest.protocol as Record<string,unknown> : {};
+    const protocol=latest ? {...protocolData,id:String(latest.id),version:Number(latest.version),title:String(latest.title||""),question:String(latest.question||""),hypothesis:String(latest.hypothesis||""),domain:String(latest.domain||"")} : null;
+    return NextResponse.json({
+      protocol,
+      versions:protocols.map((row:WorkspaceRow)=>({version:row.version,savedAt:row.created_at,protocol:row.protocol})),
+      evidence:evidence.map((row:WorkspaceRow)=>({id:row.id,title:row.title,publisher:row.publisher,url:row.source_url,evidenceClass:row.evidence_class,claim:row.claim,supports:row.classification,quality:row.quality,publishedDate:row.metadata?.publishedDate||"",accessDate:row.metadata?.accessDate||"",notes:row.metadata?.notes||""})),
+      audit:audit.map((row:WorkspaceRow)=>({id:row.id,actor:row.actor_id,action:row.action,detail:typeof row.detail==="string"?row.detail:JSON.stringify(row.detail),at:row.created_at})),
+      persistence:"neon"
+    },{headers:{"Cache-Control":"no-store"}});
   } catch(e) { return NextResponse.json({error:e instanceof Error?e.message:"Unable to load research workspace."},{status:503}); }
 }
 
